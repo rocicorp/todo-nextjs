@@ -1,6 +1,15 @@
-import type { JSONValue, ScanResult, WriteTransaction } from "replicache";
-import { delEntry, getEntry, putEntry } from "./data";
+import {
+  isScanIndexOptions,
+  JSONValue,
+  makeScanResult,
+  ScanNoIndexOptions,
+  ScanOptions,
+  ScanResult,
+  WriteTransaction,
+} from "replicache";
+import { delEntry, getEntries, getEntry, putEntry } from "./data";
 import { Executor } from "./pg";
+import { mergePendingChanges } from "./merge-pending";
 
 /**
  * Implements Replicache's WriteTransaction interface in terms of a Postgres
@@ -54,15 +63,38 @@ export class ReplicacheTransaction implements WriteTransaction {
     return val !== undefined;
   }
 
-  // TODO!
   async isEmpty(): Promise<boolean> {
-    throw new Error("not implemented");
+    for await (const _ of this.scan()) {
+      return false;
+    }
+    return true;
   }
-  scan(): ScanResult<string> {
-    throw new Error("not implemented");
-  }
-  scanAll(): Promise<[string, JSONValue][]> {
-    throw new Error("not implemented");
+
+  scan(options: ScanOptions = {} as ScanNoIndexOptions) {
+    if (isScanIndexOptions(options)) {
+      throw new Error("not implemented");
+    }
+
+    const { _executor: executor, _spaceID: spaceID, _cache: cache } = this;
+
+    return makeScanResult(options, async function* (fromKey) {
+      const source = getEntries(executor, spaceID, fromKey);
+
+      // TODO: It would be more optimal to keep the _cache in a sorted map in
+      // the first place.
+      const changes = [...cache]
+        .filter(([, { dirty }]) => dirty)
+        .filter(([k]) => k.localeCompare(fromKey) >= 0)
+        .map(([k, { value }]) => [k, value] as const)
+        .sort(([k1], [k2]) => k1.localeCompare(k2));
+
+      for await (const entry of mergePendingChanges(
+        source,
+        changes[Symbol.iterator]()
+      )) {
+        yield entry;
+      }
+    }) as ScanResult<string, JSONValue>;
   }
 
   async flush(): Promise<void> {
