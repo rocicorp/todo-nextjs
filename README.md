@@ -39,4 +39,3 @@ DATABASE_URL="<DB URL>" NEXT_PUBLIC_SUPABASE_URL="<API URL>" NEXT_PUBLIC_SUPABAS
 ## TODO
 
 - Somehow make unit tests easier -- can we either include postgres via npm, or use some fake postgres?
-- Fix completeAllTodos() to use scan when https://github.com/rocicorp/replicache/issues/607 is fixed
