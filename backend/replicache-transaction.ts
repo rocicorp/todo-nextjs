@@ -6,10 +6,13 @@ import {
   ScanOptions,
   ScanResult,
   WriteTransaction,
+  mergeAsyncIterables,
+  filterAsyncIterable,
 } from "replicache";
 import { delEntry, getEntries, getEntry, putEntry } from "./data";
 import { Executor } from "./pg";
-import { mergePendingChanges } from "./merge-pending";
+
+type CacheMap = Map<string, { value: JSONValue | undefined; dirty: boolean }>;
 
 /**
  * Implements Replicache's WriteTransaction interface in terms of a Postgres
@@ -20,10 +23,7 @@ export class ReplicacheTransaction implements WriteTransaction {
   private _clientID: string;
   private _version: number;
   private _executor: Executor;
-  private _cache: Map<
-    string,
-    { value: JSONValue | undefined; dirty: boolean }
-  > = new Map();
+  private _cache: CacheMap = new Map();
 
   constructor(
     executor: Executor,
@@ -77,24 +77,19 @@ export class ReplicacheTransaction implements WriteTransaction {
 
     const { _executor: executor, _spaceID: spaceID, _cache: cache } = this;
 
-    return makeScanResult(options, async function* (fromKey) {
-      const source = getEntries(executor, spaceID, fromKey);
-
-      // TODO: It would be more optimal to keep the _cache in a sorted map in
-      // the first place.
-      const changes = [...cache]
-        .filter(([, { dirty }]) => dirty)
-        .filter(([k]) => k.localeCompare(fromKey) >= 0)
-        .map(([k, { value }]) => [k, value] as const)
-        .sort(([k1], [k2]) => k1.localeCompare(k2));
-
-      for await (const entry of mergePendingChanges(
-        source,
-        changes[Symbol.iterator]()
-      )) {
-        yield entry;
+    return makeScanResult<ScanNoIndexOptions, JSONValue>(
+      options,
+      (fromKey: string) => {
+        const source = getEntries(executor, spaceID, fromKey);
+        const pending = getCacheEntries(cache, fromKey);
+        const merged = mergeAsyncIterables(source, pending, entryCompare);
+        const filtered = filterAsyncIterable(
+          merged,
+          (entry) => entry[1] !== undefined
+        ) as AsyncIterable<readonly [string, JSONValue]>;
+        return filtered;
       }
-    }) as ScanResult<string, JSONValue>;
+    );
   }
 
   async flush(): Promise<void> {
@@ -116,4 +111,29 @@ export class ReplicacheTransaction implements WriteTransaction {
         })
     );
   }
+}
+
+async function* getCacheEntries(
+  cache: CacheMap,
+  fromKey: string
+): AsyncIterable<readonly [string, JSONValue | undefined]> {
+  const entries = [];
+  for (const [key, { value, dirty }] of cache) {
+    if (dirty && stringCompare(key, fromKey) >= 0) {
+      entries.push([key, value] as const);
+    }
+  }
+  entries.sort((a, b) => stringCompare(a[0], b[0]));
+  yield* entries;
+}
+
+function stringCompare(a: string, b: string): number {
+  return a === b ? 0 : a < b ? -1 : 1;
+}
+
+function entryCompare(
+  a: readonly [string, unknown],
+  b: readonly [string, unknown]
+): number {
+  return stringCompare(a[0], b[0]);
 }

@@ -113,7 +113,7 @@ export async function* getEntries(
   executor: Executor,
   spaceID: string,
   fromKey: string
-) {
+): AsyncIterable<readonly [string, JSONValue]> {
   const {
     rows,
   } = await executor(
