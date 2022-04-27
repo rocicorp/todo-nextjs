@@ -113,10 +113,10 @@ export class ReplicacheTransaction implements WriteTransaction {
   }
 }
 
-async function* getCacheEntries(
+function getCacheEntries(
   cache: CacheMap,
   fromKey: string
-): AsyncIterable<readonly [string, JSONValue | undefined]> {
+): Iterable<readonly [string, JSONValue | undefined]> {
   const entries = [];
   for (const [key, { value, dirty }] of cache) {
     if (dirty && stringCompare(key, fromKey) >= 0) {
@@ -124,7 +124,7 @@ async function* getCacheEntries(
     }
   }
   entries.sort((a, b) => stringCompare(a[0], b[0]));
-  yield* entries;
+  return entries;
 }
 
 function stringCompare(a: string, b: string): number {
