@@ -18,7 +18,7 @@ export default function TodoTextInput({
   onBlur?: (text: string) => void;
   onSubmit: (text: string) => void;
 }) {
-  const [textInput, setTextInput] = useState("");
+  const [textInput, setTextInput] = useState(initial);
   const ref = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: KeyboardEvent<HTMLInputElement>) => {
