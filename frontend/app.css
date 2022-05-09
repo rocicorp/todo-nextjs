@@ -1,0 +1,32 @@
+.todo-list li.urgent {
+  background-color: orange;
+}
+
+.toggle-urgent {
+  display: none;
+  height: 20px;
+  width: 20px;
+  font-weight: 900;
+  line-height: 20px;
+  font-size: 80%;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto 50px;
+
+  color: #949494;
+}
+
+.toggle-urgent:hover {
+  color: #C18585;
+}
+
+.toggle-urgent:after {
+  content: '!';
+}
+
+.todo-list li:hover .toggle-urgent {
+  display:block;
+}

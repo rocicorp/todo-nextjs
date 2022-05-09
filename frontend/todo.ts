@@ -17,6 +17,7 @@ export const todoSchema = z.object({
   text: z.string(),
   completed: z.boolean(),
   sort: z.number(),
+  urgent: z.optional(z.boolean()),
 });
 
 export type Todo = z.TypeOf<typeof todoSchema>;

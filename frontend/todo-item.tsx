@@ -29,6 +29,8 @@ export function TodoItem({
 
   const handleToggleComplete = () => onUpdate({ completed: !todo.completed });
 
+  const handleToggleUrgent = () => onUpdate({ urgent: !todo.urgent });
+
   let element;
   if (editing) {
     element = (
@@ -48,6 +50,7 @@ export function TodoItem({
           onChange={handleToggleComplete}
         />
         <label onDoubleClick={handleDoubleClick}>{todo.text}</label>
+        <button className="toggle-urgent" onClick={handleToggleUrgent} />
         <button className="destroy" onClick={() => onDelete()} />
       </div>
     );
@@ -57,6 +60,7 @@ export function TodoItem({
     <li
       className={classnames({
         completed: todo.completed,
+        urgent: todo.urgent,
         editing,
       })}
     >
