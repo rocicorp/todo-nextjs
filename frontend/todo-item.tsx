@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import classnames from "classnames";
-import { Todo } from "./todo";
+import { Todo, TodoUpdate } from "./todo";
 import TodoTextInput from "./todo-text-input";
 
 export function TodoItem({
   todo,
   onUpdate,
-  onComplete,
   onDelete,
 }: {
   todo: Todo;
-  onUpdate: (text: string) => void;
-  onComplete: (completed: boolean) => void;
+  onUpdate: (changes: TodoUpdate) => void;
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -24,10 +22,12 @@ export function TodoItem({
     if (text.length === 0) {
       onDelete();
     } else {
-      onUpdate(text);
+      onUpdate({ text });
     }
     setEditing(false);
   };
+
+  const handleToggleComplete = () => onUpdate({ completed: !todo.completed });
 
   let element;
   if (editing) {
@@ -45,7 +45,7 @@ export function TodoItem({
           className="toggle"
           type="checkbox"
           checked={todo.completed}
-          onChange={() => onComplete(!todo.completed)}
+          onChange={handleToggleComplete}
         />
         <label onDoubleClick={handleDoubleClick}>{todo.text}</label>
         <button className="destroy" onClick={() => onDelete()} />

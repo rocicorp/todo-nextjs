@@ -5,7 +5,7 @@ import { useSubscribe } from "replicache-react";
 import Header from "./header";
 import MainSection from "./main-section";
 import { M } from "./mutators";
-import { getAllTodos } from "./todo";
+import { getAllTodos, TodoUpdate } from "./todo";
 
 const App = ({ rep }: { rep: Replicache<M> }) => {
   const todos = useSubscribe(rep, getAllTodos, []);
@@ -18,11 +18,8 @@ const App = ({ rep }: { rep: Replicache<M> }) => {
       completed: false,
     });
 
-  const handleUpdateTodo = (id: string, text: string) =>
-    rep.mutate.updateTodo({ id, changes: { text } });
-
-  const handleCompleteTodo = (id: string, completed: boolean) =>
-    rep.mutate.updateTodo({ id, changes: { completed } });
+  const handleUpdateTodo = (id: string, changes: TodoUpdate) =>
+    rep.mutate.updateTodo({ id, changes });
 
   const handleDeleteTodos = rep.mutate.deleteTodos;
 
@@ -34,7 +31,6 @@ const App = ({ rep }: { rep: Replicache<M> }) => {
       <MainSection
         todos={todos}
         onUpdateTodo={handleUpdateTodo}
-        onCompleteTodo={handleCompleteTodo}
         onDeleteTodos={handleDeleteTodos}
         onCompleteTodos={handleCompleteTodos}
       />

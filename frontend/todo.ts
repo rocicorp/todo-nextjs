@@ -21,6 +21,8 @@ export const todoSchema = z.object({
 
 export type Todo = z.TypeOf<typeof todoSchema>;
 
+export type TodoUpdate = Omit<Partial<Todo>, "id">;
+
 const todoValueSchema = todoSchema.omit({ id: true });
 
 export async function getTodo(
