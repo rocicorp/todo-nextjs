@@ -1,16 +1,14 @@
 import React from "react";
-import { Todo } from "./todo";
+import { Todo, TodoUpdate } from "./todo";
 import { TodoItem } from "./todo-item";
 
 const TodoList = ({
   todos,
   onUpdateTodo,
-  onCompleteTodo,
   onDeleteTodo,
 }: {
   todos: Todo[];
-  onUpdateTodo: (id: string, text: string) => void;
-  onCompleteTodo: (id: string, completed: boolean) => void;
+  onUpdateTodo: (id: string, changes: TodoUpdate) => void;
   onDeleteTodo: (id: string) => void;
 }) => {
   return (
@@ -19,8 +17,7 @@ const TodoList = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onUpdate={(text) => onUpdateTodo(todo.id, text)}
-          onComplete={(complete) => onCompleteTodo(todo.id, complete)}
+          onUpdate={(changes) => onUpdateTodo(todo.id, changes)}
           onDelete={() => onDeleteTodo(todo.id)}
         />
       ))}
