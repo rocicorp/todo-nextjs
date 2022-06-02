@@ -10,7 +10,7 @@ const MainSection = ({
   onCompleteTodos,
 }: {
   todos: Todo[];
-  onUpdateTodo: (id: string, changes: TodoUpdate) => void;
+  onUpdateTodo: (update: TodoUpdate) => void;
   onDeleteTodos: (ids: string[]) => void;
   onCompleteTodos: (args: { completed: boolean; ids: string[] }) => void;
 }) => {

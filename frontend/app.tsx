@@ -5,25 +5,39 @@ import { useSubscribe } from "replicache-react";
 import Header from "./header";
 import MainSection from "./main-section";
 import { M } from "./mutators";
-import { getAllTodos, TodoUpdate } from "./todo";
+import { listTodos, Todo, TodoUpdate } from "./todo";
 
 const App = ({ rep }: { rep: Replicache<M> }) => {
-  const todos = useSubscribe(rep, getAllTodos, []);
+  const todos = useSubscribe(rep, listTodos, []);
 
   const handleNewItem = (text: string) =>
-    rep.mutate.putTodo({
+    rep.mutate.createTodo({
       id: nanoid(),
       text,
       sort: todos.length > 0 ? todos[todos.length - 1].sort + 1 : 0,
       completed: false,
     });
 
-  const handleUpdateTodo = (id: string, changes: TodoUpdate) =>
-    rep.mutate.updateTodo({ id, changes });
+  const handleUpdateTodo = (update: TodoUpdate) =>
+    rep.mutate.updateTodo(update);
 
-  const handleDeleteTodos = rep.mutate.deleteTodos;
+  const handleDeleteTodos = (ids: string[]) => {
+    for (const id of ids) {
+      rep.mutate.deleteTodo(id);
+    }
+  };
 
-  const handleCompleteTodos = rep.mutate.completeTodos;
+  const handleCompleteTodos = ({
+    completed,
+    ids,
+  }: {
+    completed: boolean;
+    ids: string[];
+  }) => {
+    for (const id of ids) {
+      rep.mutate.updateTodo({ id, completed });
+    }
+  };
 
   return (
     <div>
