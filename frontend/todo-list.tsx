@@ -8,7 +8,7 @@ const TodoList = ({
   onDeleteTodo,
 }: {
   todos: Todo[];
-  onUpdateTodo: (id: string, changes: TodoUpdate) => void;
+  onUpdateTodo: (update: TodoUpdate) => void;
   onDeleteTodo: (id: string) => void;
 }) => {
   return (
@@ -17,7 +17,7 @@ const TodoList = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onUpdate={(changes) => onUpdateTodo(todo.id, changes)}
+          onUpdate={(update) => onUpdateTodo(update)}
           onDelete={() => onDeleteTodo(todo.id)}
         />
       ))}

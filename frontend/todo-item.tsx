@@ -9,9 +9,10 @@ export function TodoItem({
   onDelete,
 }: {
   todo: Todo;
-  onUpdate: (changes: TodoUpdate) => void;
+  onUpdate: (update: TodoUpdate) => void;
   onDelete: () => void;
 }) {
+  const { id } = todo;
   const [editing, setEditing] = useState(false);
 
   const handleDoubleClick = () => {
@@ -22,12 +23,13 @@ export function TodoItem({
     if (text.length === 0) {
       onDelete();
     } else {
-      onUpdate({ text });
+      onUpdate({ id, text });
     }
     setEditing(false);
   };
 
-  const handleToggleComplete = () => onUpdate({ completed: !todo.completed });
+  const handleToggleComplete = () =>
+    onUpdate({ id, completed: !todo.completed });
 
   let element;
   if (editing) {
