@@ -5,13 +5,13 @@ import { useSubscribe } from "replicache-react";
 import Header from "./header";
 import MainSection from "./main-section";
 import { M } from "./mutators";
-import { listTodos, Todo, TodoUpdate } from "./todo";
+import { listTodos, TodoUpdate } from "./todo";
 
 const App = ({ rep }: { rep: Replicache<M> }) => {
   const todos = useSubscribe(rep, listTodos, []);
 
   const handleNewItem = (text: string) =>
-    rep.mutate.createTodo({
+    rep.mutate.putTodo({
       id: nanoid(),
       text,
       sort: todos.length > 0 ? todos[todos.length - 1].sort + 1 : 0,

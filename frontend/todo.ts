@@ -10,10 +10,10 @@ export const todoSchema = entitySchema.extend({
 export type Todo = z.infer<typeof todoSchema>;
 export type TodoUpdate = Update<Todo>;
 
-export const [
-  createTodo,
-  getTodo,
-  updateTodo,
-  deleteTodo,
-  listTodos,
-] = generate("todo", todoSchema);
+export const {
+  put: putTodo,
+  update: updateTodo,
+  delete: deleteTodo,
+  get: getTodo,
+  list: listTodos,
+} = generate("todo", todoSchema);
