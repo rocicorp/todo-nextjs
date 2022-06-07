@@ -1,9 +1,10 @@
-import { putTodo, updateTodo, deleteTodo } from "./todo";
+import { putTodo, updateTodo, deleteTodos, markTodosCompleted } from "./todo";
 
 export type M = typeof mutators;
 
 export const mutators = {
   putTodo,
   updateTodo,
-  deleteTodo,
+  deleteTodos,
+  markTodosCompleted,
 };

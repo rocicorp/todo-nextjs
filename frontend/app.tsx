@@ -22,21 +22,11 @@ const App = ({ rep }: { rep: Replicache<M> }) => {
     rep.mutate.updateTodo(update);
 
   const handleDeleteTodos = (ids: string[]) => {
-    for (const id of ids) {
-      rep.mutate.deleteTodo(id);
-    }
+    rep.mutate.deleteTodos(ids);
   };
 
-  const handleCompleteTodos = ({
-    completed,
-    ids,
-  }: {
-    completed: boolean;
-    ids: string[];
-  }) => {
-    for (const id of ids) {
-      rep.mutate.updateTodo({ id, completed });
-    }
+  const handleCompleteTodos = (args: { completed: boolean; ids: string[] }) => {
+    rep.mutate.markTodosCompleted(args);
   };
 
   return (
