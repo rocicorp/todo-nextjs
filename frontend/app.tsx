@@ -8,7 +8,8 @@ import { M } from "./mutators";
 import { listTodos, TodoUpdate } from "./todo";
 
 const App = ({ rep }: { rep: Replicache<M> }) => {
-  const todos = useSubscribe(rep, listTodos, []);
+  const todos = useSubscribe(rep, listTodos, [], [rep]);
+  todos.sort((a, b) => a.sort - b.sort);
 
   const handleNewItem = (text: string) =>
     rep.mutate.putTodo({

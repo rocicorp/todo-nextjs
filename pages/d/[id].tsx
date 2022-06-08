@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Replicache } from "replicache";
 import { M, mutators } from "../../frontend/mutators";
 import App from "../../frontend/app";
-import { createClient } from "@supabase/supabase-js";
+import Pusher from "pusher-js";
 
 export default function Home() {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
@@ -24,16 +24,20 @@ export default function Home() {
         mutators,
       });
 
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_KEY!
-      );
-      supabase
-        .from(`space:id=eq.${spaceID}`)
-        .on("*", () => {
+      if (
+        process.env.NEXT_PUBLIC_PUSHER_KEY &&
+        process.env.NEXT_PUBLIC_PUSHER_CLUSTER
+      ) {
+        Pusher.logToConsole = true;
+        const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
+          cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+        });
+
+        const channel = pusher.subscribe("default");
+        channel.bind("poke", () => {
           r.pull();
-        })
-        .subscribe();
+        });
+      }
 
       setRep(r);
     })();
