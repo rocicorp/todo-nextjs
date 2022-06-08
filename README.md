@@ -1,6 +1,6 @@
 # replicache-todo
 
-A super fast todo list built with Replicache, React, Next.js, Vercel, Supabase, and Postgres.
+A super fast todo list built with Replicache, React, Next.js, Vercel, Postgres, and Pusher.
 
 The simplest possible starter sample for Replicache.
 Intended for customers to clone and start editing.
