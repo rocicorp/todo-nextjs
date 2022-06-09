@@ -2,6 +2,34 @@ import { Knex } from "knex";
 import { JSONValue } from "replicache";
 import { z } from "zod";
 
+export const metaRow = z.object({
+  key: z.string(),
+  value: z.string(),
+});
+export const spaceRow = z.object({
+  id: z.string(),
+  version: z.number(),
+  lastmodified: z.date(),
+});
+export const clientRow = z.object({
+  id: z.string(),
+  lastmutationid: z.number(),
+  lastmodified: z.date(),
+});
+export const entryRow = z.object({
+  spaceid: z.string(),
+  key: z.string(),
+  value: z.string(),
+  deleted: z.boolean(),
+  version: z.number(),
+  lastmodified: z.date(),
+});
+
+export type MetaRow = z.infer<typeof metaRow>;
+export type SpaceRow = z.infer<typeof spaceRow>;
+export type ClientRow = z.infer<typeof clientRow>;
+export type EntryRow = z.infer<typeof entryRow>;
+
 export async function createDatabase(knex: Knex) {
   const schemaVersion = await getSchemaVersion(knex);
   if (schemaVersion < 0 || schemaVersion > 1) {
@@ -12,12 +40,6 @@ export async function createDatabase(knex: Knex) {
   }
   console.log("schemaVersion is 1 - nothing to do");
 }
-
-const metaRow = z.object({
-  key: z.string(),
-  value: z.string(),
-});
-type MetaRow = z.infer<typeof metaRow>;
 
 async function getSchemaVersion(knex: Knex) {
   const metaExists = await knex.schema.hasTable("meta");
@@ -32,20 +54,6 @@ async function getSchemaVersion(knex: Knex) {
 
   return JSON.parse(metaRow.parse(res).value);
 }
-
-export const spaceRow = z.object({
-  id: z.string(),
-  version: z.number(),
-  lastmodified: z.date(),
-});
-export type SpaceRow = z.infer<typeof spaceRow>;
-
-const clientRow = z.object({
-  id: z.string(),
-  lastmutationid: z.number(),
-  lastmodified: z.date(),
-});
-type ClientRow = z.infer<typeof clientRow>;
 
 export async function createSchemaVersion1(knex: Knex) {
   await knex.schema
@@ -78,16 +86,6 @@ export async function createSchemaVersion1(knex: Knex) {
 
   await knex("meta").insert<MetaRow>({ key: "schemaVersion", value: "1" });
 }
-
-export const entryRow = z.object({
-  spaceid: z.string(),
-  key: z.string(),
-  value: z.string(),
-  deleted: z.boolean(),
-  version: z.number(),
-  lastmodified: z.date(),
-});
-export type EntryRow = z.infer<typeof entryRow>;
 
 export async function getEntry(
   knex: Knex,
@@ -172,6 +170,9 @@ export async function getCookie(
   spaceID: string
 ): Promise<number | undefined> {
   const res = await knex("space").first("version").where({ id: spaceID });
+  if (res === undefined) {
+    return res;
+  }
   return spaceRow.pick({ version: true }).parse(res).version;
 }
 
@@ -193,6 +194,9 @@ export async function getLastMutationID(
   const res = await knex<ClientRow>("client")
     .first("lastmutationid")
     .where({ id: clientID });
+  if (res === undefined) {
+    return undefined;
+  }
   return clientRow.pick({ lastmutationid: true }).parse(res).lastmutationid;
 }
 
