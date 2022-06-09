@@ -1,195 +1,204 @@
+import { Knex } from "knex";
 import { JSONValue } from "replicache";
-import { z } from "zod";
-import { Executor } from "./pg";
+import { string, z } from "zod";
 
-export async function createDatabase(executor: Executor) {
-  const schemaVersion = await getSchemaVersion(executor);
+export async function createDatabase(knex: Knex) {
+  const schemaVersion = await getSchemaVersion(knex);
   if (schemaVersion < 0 || schemaVersion > 1) {
     throw new Error("Unexpected schema version: " + schemaVersion);
   }
   if (schemaVersion === 0) {
-    await createSchemaVersion1(executor);
+    await createSchemaVersion1(knex);
   }
   console.log("schemaVersion is 1 - nothing to do");
 }
 
-async function getSchemaVersion(executor: Executor) {
-  const metaExists = await executor(`select exists(
-    select from pg_tables where schemaname = 'public' and tablename = 'meta')`);
-  if (!metaExists.rows[0].exists) {
+const metaRow = z.object({
+  key: z.string(),
+  value: z.string(),
+});
+type MetaRow = z.infer<typeof metaRow>;
+
+async function getSchemaVersion(knex: Knex) {
+  const metaExists = await knex.schema.hasTable("meta");
+  if (!metaExists) {
     return 0;
   }
 
-  const qr = await executor(
-    `select value from meta where key = 'schemaVersion'`
-  );
-  return qr.rows[0].value;
+  const res = await knex
+    .first("value")
+    .from("meta")
+    .where({ key: "schemaVersion" });
+
+  return metaRow.parse(res);
 }
 
-export async function createSchemaVersion1(executor: Executor) {
-  await executor("create table meta (key text primary key, value json)");
-  await executor("insert into meta (key, value) values ('schemaVersion', '1')");
+export const spaceRow = z.object({
+  id: z.string(),
+  version: z.number(),
+  lastmodified: z.date(),
+});
+type SpaceRow = z.infer<typeof spaceRow>;
 
-  await executor(`create table space (
-      id text primary key not null,
-      version integer not null,
-      lastmodified timestamp(6) not null
-      )`);
+const clientRow = z.object({
+  id: z.string(),
+  lastmutationid: z.number(),
+  lastmodified: z.date(),
+});
+type ClientRow = z.infer<typeof clientRow>;
 
-  await executor(`create table client (
-        id text primary key not null,
-        lastmutationid integer not null,
-        lastmodified timestamp(6) not null
-        )`);
+export async function createSchemaVersion1(knex: Knex) {
+  await knex.schema
+    .createTable("meta", (table) => {
+      table.text("key").primary().notNullable();
+      table.json("value").notNullable();
+    })
+    .createTable("space", (table) => {
+      table.text("id").primary().notNullable();
+      table.integer("version").notNullable();
+      table.timestamp("lastmodified").notNullable().defaultTo(knex.fn.now());
+    })
+    .createTable("client", (table) => {
+      table.text("id").primary().notNullable();
+      table.integer("lastmutationid").notNullable();
+      table.timestamp("lastmodified").notNullable();
+    })
+    .createTable("entry", (table) => {
+      table.text("spaceid").notNullable();
+      table.text("key").notNullable();
+      table.json("value").notNullable();
+      table.boolean("deleted").notNullable();
+      table.integer("version").notNullable();
+      table.timestamp("lastmodified").notNullable();
+      table.unique(["spaceid", "key"]);
+      table.index("spaceid");
+      table.index("deleted");
+      table.index("version");
+    });
 
-  await executor(`create table entry (
-      spaceid text not null,
-      key text not null,
-      value text not null,
-      deleted boolean not null,
-      version integer not null,
-      lastmodified timestamp(6) not null
-      )`);
-
-  await executor(`create unique index on entry (spaceid, key)`);
-  await executor(`create index on entry (spaceid)`);
-  await executor(`create index on entry (deleted)`);
-  await executor(`create index on entry (version)`);
+  await knex("meta").insert<MetaRow>({ key: "schemaVersion", value: 1 });
 }
+
+const entryRow = z.object({
+  spaceid: z.string(),
+  key: z.string(),
+  value: z.string(),
+  deleted: z.boolean(),
+  version: z.number(),
+  lastmodified: z.date(),
+});
+export type EntryRow = z.infer<typeof entryRow>;
 
 export async function getEntry(
-  executor: Executor,
+  knex: Knex,
   spaceid: string,
   key: string
 ): Promise<JSONValue | undefined> {
-  const {
-    rows,
-  } = await executor(
-    "select value from entry where spaceid = $1 and key = $2 and deleted = false",
-    [spaceid, key]
-  );
-  const value = rows[0]?.value;
-  if (value === undefined) {
-    return undefined;
-  }
-  return JSON.parse(value);
+  const val = await knex("entry")
+    .first("value")
+    .where({ spaceid, key, deleted: false });
+  const entry = entryRow.parse(val);
+  return entry.value;
 }
 
 export async function putEntry(
-  executor: Executor,
+  knex: Knex,
   spaceID: string,
   key: string,
   value: JSONValue,
   version: number
 ): Promise<void> {
-  await executor(
-    `
-    insert into entry (spaceid, key, value, deleted, version, lastmodified)
-    values ($1, $2, $3, false, $4, now())
-      on conflict (spaceid, key) do update set
-        value = $3, deleted = false, version = $4, lastmodified = now()
-    `,
-    [spaceID, key, JSON.stringify(value), version]
-  );
+  await knex("entry")
+    .insert<EntryRow>({
+      spaceid: spaceID,
+      key,
+      value,
+      deleted: false,
+      version,
+    })
+    .onConflict()
+    .merge();
 }
 
 export async function delEntry(
-  executor: Executor,
+  knex: Knex,
   spaceID: string,
   key: string,
   version: number
 ): Promise<void> {
-  await executor(
-    `update entry set deleted = true, version = $3 where spaceid = $1 and key = $2`,
-    [spaceID, key, version]
-  );
+  await knex("entry")
+    .update<EntryRow>({
+      deleted: true,
+      version,
+    })
+    .where({ spaceid: spaceID, key });
 }
 
 export async function* getEntries(
-  executor: Executor,
+  knex: Knex,
   spaceID: string,
   fromKey: string
 ): AsyncIterable<readonly [string, JSONValue]> {
-  const {
-    rows,
-  } = await executor(
-    `select key, value from entry where spaceid = $1 and key >= $2 and deleted = false order by key`,
-    [spaceID, fromKey]
-  );
+  // TODO: Is there a lazy iterator in knex?
+  const rows = await knex("entry")
+    .where({ spaceid: spaceID })
+    .andWhere("key", ">=", fromKey);
   for (const row of rows) {
+    const entry = entryRow.parse(row);
     yield [row.key as string, JSON.parse(row.value) as JSONValue] as const;
   }
 }
 
 export async function getChangedEntries(
-  executor: Executor,
+  knex: Knex,
   spaceID: string,
   prevVersion: number
 ): Promise<[key: string, value: JSONValue, deleted: boolean][]> {
-  const {
-    rows,
-  } = await executor(
-    `select key, value, deleted from entry where spaceid = $1 and version > $2`,
-    [spaceID, prevVersion]
-  );
-  return rows.map((row) => [row.key, JSON.parse(row.value), row.deleted]);
+  const rows = await knex("entry")
+    .where({ spaceid: spaceID })
+    .andWhere("version", ">", prevVersion);
+  return rows.map((row) => {
+    const entry = entryRow.parse(row);
+    return [entry.key, entry.value, entry.deleted];
+  });
 }
 
 export async function getCookie(
-  executor: Executor,
+  knex: Knex,
   spaceID: string
 ): Promise<number | undefined> {
-  const { rows } = await executor(`select version from space where id = $1`, [
-    spaceID,
-  ]);
-  const value = rows[0]?.version;
-  if (value === undefined) {
-    return undefined;
-  }
-  return z.number().parse(value);
+  const res = await knex("space").first("version").where({ id: spaceID });
+  return spaceRow.pick({ version: true }).parse(res).version;
 }
 
 export async function setCookie(
-  executor: Executor,
+  knex: Knex,
   spaceID: string,
   version: number
 ): Promise<void> {
-  await executor(
-    `
-    insert into space (id, version, lastmodified) values ($1, $2, now())
-      on conflict (id) do update set version = $2, lastmodified = now()
-    `,
-    [spaceID, version]
-  );
+  await knex<SpaceRow>("space")
+    .insert({ id: spaceID, version })
+    .onConflict()
+    .merge();
 }
 
 export async function getLastMutationID(
-  executor: Executor,
+  knex: Knex,
   clientID: string
 ): Promise<number | undefined> {
-  const {
-    rows,
-  } = await executor(`select lastmutationid from client where id = $1`, [
-    clientID,
-  ]);
-  const value = rows[0]?.lastmutationid;
-  if (value === undefined) {
-    return undefined;
-  }
-  return z.number().parse(value);
+  const res = await knex<ClientRow>("client")
+    .first("lastmutationid")
+    .where({ id: clientID });
+  return clientRow.pick({ lastmutationid: true }).parse(res).lastmutationid;
 }
 
 export async function setLastMutationID(
-  executor: Executor,
+  knex: Knex,
   clientID: string,
   lastMutationID: number
 ): Promise<void> {
-  await executor(
-    `
-    insert into client (id, lastmutationid, lastmodified)
-    values ($1, $2, now())
-      on conflict (id) do update set lastmutationid = $2, lastmodified = now()
-    `,
-    [clientID, lastMutationID]
-  );
+  await knex<ClientRow>("client")
+    .insert({ id: clientID, lastmutationid: lastMutationID })
+    .onConflict()
+    .merge();
 }

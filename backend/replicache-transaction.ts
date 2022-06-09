@@ -1,3 +1,4 @@
+import { Knex } from "knex";
 import {
   isScanIndexOptions,
   JSONValue,
@@ -10,7 +11,6 @@ import {
   filterAsyncIterable,
 } from "replicache";
 import { delEntry, getEntries, getEntry, putEntry } from "./data";
-import { Executor } from "./pg";
 
 type CacheMap = Map<string, { value: JSONValue | undefined; dirty: boolean }>;
 
@@ -22,11 +22,11 @@ export class ReplicacheTransaction implements WriteTransaction {
   private _spaceID: string;
   private _clientID: string;
   private _version: number;
-  private _executor: Executor;
+  private _executor: Knex;
   private _cache: CacheMap = new Map();
 
   constructor(
-    executor: Executor,
+    executor: Knex,
     spaceID: string,
     clientID: string,
     version: number

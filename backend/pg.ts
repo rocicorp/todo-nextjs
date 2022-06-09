@@ -19,7 +19,7 @@ export type TransactionBodyFn<R> = (knex: Knex) => Promise<R>;
  * @param body Function to invoke. If this throws, the transaction will be rolled
  * back. The thrown error will be re-thrown.
  */
-export async function transact<R>(body: TransactionBodyFn<R>) {
+export async function transact<R>(body: TransactionBodyFn<R>): Promise<R> {
   for (let i = 0; i < 10; i++) {
     try {
       return await k.transaction(body);
@@ -35,6 +35,7 @@ export async function transact<R>(body: TransactionBodyFn<R>) {
       throw e;
     }
   }
+  throw new Error("Failed to complete transaction after 10 attempts");
 }
 
 //stackoverflow.com/questions/60339223/node-js-transaction-coflicts-in-postgresql-optimistic-concurrency-control-and
