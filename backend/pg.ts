@@ -32,8 +32,6 @@ export async function transact<R>(body: TransactionBodyFn<R>): Promise<R> {
     try {
       return await k.transaction(body);
     } catch (e) {
-      // TODO: make sure error handling is right for knex.
-      // See: https://stackoverflow.com/questions/67046597/what-is-the-proper-way-to-handle-knex-pg-database-errors
       if (shouldRetryTransaction(e)) {
         console.log(
           `Retrying transaction due to error ${e} - attempt number ${i}`
