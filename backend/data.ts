@@ -1,6 +1,6 @@
 import { Knex } from "knex";
 import { JSONValue } from "replicache";
-import { string, z } from "zod";
+import { z } from "zod";
 
 export async function createDatabase(knex: Knex) {
   const schemaVersion = await getSchemaVersion(knex);
@@ -25,12 +25,12 @@ async function getSchemaVersion(knex: Knex) {
     return 0;
   }
 
-  const res = await knex
-    .first("value")
-    .from("meta")
-    .where({ key: "schemaVersion" });
+  const res = await knex.first().from("meta").where({ key: "schemaVersion" });
+  if (!res) {
+    return 0;
+  }
 
-  return metaRow.parse(res);
+  return JSON.parse(metaRow.parse(res).value);
 }
 
 export const spaceRow = z.object({
@@ -51,7 +51,7 @@ export async function createSchemaVersion1(knex: Knex) {
   await knex.schema
     .createTable("meta", (table) => {
       table.text("key").primary().notNullable();
-      table.json("value").notNullable();
+      table.text("value").notNullable();
     })
     .createTable("space", (table) => {
       table.text("id").primary().notNullable();
@@ -61,28 +61,28 @@ export async function createSchemaVersion1(knex: Knex) {
     .createTable("client", (table) => {
       table.text("id").primary().notNullable();
       table.integer("lastmutationid").notNullable();
-      table.timestamp("lastmodified").notNullable();
+      table.timestamp("lastmodified").notNullable().defaultTo(knex.fn.now());
     })
     .createTable("entry", (table) => {
       table.text("spaceid").notNullable();
       table.text("key").notNullable();
-      table.json("value").notNullable();
+      table.text("value").notNullable();
       table.boolean("deleted").notNullable();
       table.integer("version").notNullable();
-      table.timestamp("lastmodified").notNullable();
+      table.timestamp("lastmodified").notNullable().defaultTo(knex.fn.now());
       table.unique(["spaceid", "key"]);
       table.index("spaceid");
       table.index("deleted");
       table.index("version");
     });
 
-  await knex("meta").insert<MetaRow>({ key: "schemaVersion", value: 1 });
+  await knex("meta").insert<MetaRow>({ key: "schemaVersion", value: "1" });
 }
 
 export const entryRow = z.object({
   spaceid: z.string(),
   key: z.string(),
-  value: z.any(),
+  value: z.string(),
   deleted: z.boolean(),
   version: z.number(),
   lastmodified: z.date(),
@@ -95,10 +95,13 @@ export async function getEntry(
   key: string
 ): Promise<JSONValue | undefined> {
   const val = await knex("entry")
-    .first("value")
+    .first()
     .where({ spaceid, key, deleted: false });
+  if (val === undefined) {
+    return val;
+  }
   const entry = entryRow.parse(val);
-  return entry.value;
+  return JSON.parse(entry.value);
 }
 
 export async function putEntry(
@@ -112,11 +115,11 @@ export async function putEntry(
     .insert<EntryRow>({
       spaceid: spaceID,
       key,
-      value,
+      value: JSON.stringify(value),
       deleted: false,
       version,
     })
-    .onConflict()
+    .onConflict(["spaceid", "key"])
     .merge();
 }
 
@@ -142,10 +145,11 @@ export async function* getEntries(
   // TODO: Is there a lazy iterator in knex?
   const rows = await knex("entry")
     .where({ spaceid: spaceID })
-    .andWhere("key", ">=", fromKey);
+    .andWhere("key", ">=", fromKey)
+    .orderBy("key");
   for (const row of rows) {
     const entry = entryRow.parse(row);
-    yield [row.key as string, JSON.parse(row.value) as JSONValue] as const;
+    yield [row.key as string, JSON.parse(entry.value) as JSONValue] as const;
   }
 }
 
@@ -159,7 +163,7 @@ export async function getChangedEntries(
     .andWhere("version", ">", prevVersion);
   return rows.map((row) => {
     const entry = entryRow.parse(row);
-    return [entry.key, entry.value, entry.deleted];
+    return [entry.key, JSON.parse(entry.value), entry.deleted];
   });
 }
 
@@ -178,7 +182,7 @@ export async function setCookie(
 ): Promise<void> {
   await knex<SpaceRow>("space")
     .insert({ id: spaceID, version })
-    .onConflict()
+    .onConflict("id")
     .merge();
 }
 
@@ -199,6 +203,6 @@ export async function setLastMutationID(
 ): Promise<void> {
   await knex<ClientRow>("client")
     .insert({ id: clientID, lastmutationid: lastMutationID })
-    .onConflict()
+    .onConflict("id")
     .merge();
 }

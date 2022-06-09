@@ -59,7 +59,8 @@ test("getEntry", async () => {
         await knex<EntryRow>("entry").insert({
           spaceid: "s1",
           key: "foo",
-          value: c.validJSON ? JSON.stringify(42) : new Date(),
+          version: 1,
+          value: c.validJSON ? JSON.stringify(42) : "not json",
           deleted: c.deleted,
         });
       }
@@ -242,11 +243,12 @@ test("delEntry", async () => {
         .delete()
         .where({ spaceid: "s1", key: "foo" });
       if (c.exists) {
-        executor<EntryRow>("entry").insert({
+        await executor<EntryRow>("entry").insert({
           spaceid: "s1",
           key: "foo",
           value: "42",
           version: 1,
+          deleted: false,
         });
       }
 
@@ -256,9 +258,9 @@ test("delEntry", async () => {
         (e) => (error = String(e))
       );
 
-      const row = entryRow.parse(
-        await executor("enry").first().where({ spaceid: "s1", key: "foo" })
-      );
+      const row = await executor("entry")
+        .first()
+        .where({ spaceid: "s1", key: "foo" });
 
       if (c.exists) {
         expect(row, c.name).not.undefined;

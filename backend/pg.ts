@@ -4,7 +4,11 @@ import knex, { Knex } from "knex";
 
 const k = knex({
   client: "pg",
-  debug: true,
+  connection: {
+    host: "localhost",
+    user: "postgres",
+    database: "todo",
+  },
   asyncStackTraces: true,
   pool: {
     min: 0,

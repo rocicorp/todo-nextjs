@@ -33,7 +33,10 @@ test("ReplicacheTransaction", async () => {
     const qr = entryRow.parse(
       await executor("entry").first().where({ spaceid: "s1", key: "foo" })
     );
+    delete (qr as any).lastmodified;
     expect(qr).deep.equal({
+      spaceid: "s1",
+      key: "foo",
       value: `"bar"`,
       deleted: true,
       version: 2,
@@ -60,7 +63,7 @@ test("ReplicacheTransaction overlap", async () => {
 test("ReplicacheTransaction scan", async () => {
   async function deleteAllEntries() {
     await withExecutor(async (executor) => {
-      await executor(`delete from entry`);
+      await executor("entry").delete();
     });
   }
   async function putEntries(entries: string[]) {
