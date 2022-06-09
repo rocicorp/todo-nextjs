@@ -10,7 +10,7 @@ import {
   getEntry,
   putEntry,
 } from "./data";
-import { transact, withExecutor } from "./pg";
+import { transact, withExecutor } from "./db";
 
 setup(async () => {
   await transact((executor) => createDatabase(executor));

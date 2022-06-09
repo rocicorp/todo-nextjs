@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { transact } from "./pg";
+import { transact } from "./db";
 import {
   createDatabase,
   getChangedEntries,

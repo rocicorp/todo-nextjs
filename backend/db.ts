@@ -1,4 +1,3 @@
-// TODO: Rename file to somehting more useful
 // TODO: sqlite
 import knex, { Knex } from "knex";
 

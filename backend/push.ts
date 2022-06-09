@@ -1,4 +1,4 @@
-import { transact } from "./pg";
+import { transact } from "./db";
 import {
   createDatabase,
   getCookie,

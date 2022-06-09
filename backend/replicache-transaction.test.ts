@@ -1,7 +1,7 @@
 import { ReplicacheTransaction } from "./replicache-transaction";
 import { expect } from "chai";
 import { test, setup } from "mocha";
-import { transact, withExecutor } from "./pg";
+import { transact, withExecutor } from "./db";
 import { createDatabase, entryRow, getEntry, putEntry } from "./data";
 import { ScanOptions } from "replicache";
 
