@@ -4,6 +4,8 @@ import { JSONValue } from "replicache";
 import {
   createDatabase,
   delEntry,
+  entryRow,
+  EntryRow,
   getEntries,
   getEntry,
   putEntry,
@@ -48,17 +50,21 @@ test("getEntry", async () => {
     },
   ];
 
-  await withExecutor(async (executor) => {
+  await withExecutor(async (knex) => {
     for (const c of cases) {
-      await executor(`delete from entry where spaceid = 's1' and key = 'foo'`);
+      await knex<EntryRow>("entry")
+        .delete()
+        .where({ spaceid: "s1", key: "foo" });
       if (c.exists) {
-        await executor(
-          `insert into entry (spaceid, key, value, deleted, version, lastmodified) values ('s1', 'foo', $1, $2, 1, now())`,
-          [c.validJSON ? JSON.stringify(42) : "not json", c.deleted]
-        );
+        await knex<EntryRow>("entry").insert({
+          spaceid: "s1",
+          key: "foo",
+          value: c.validJSON ? JSON.stringify(42) : new Date(),
+          deleted: c.deleted,
+        });
       }
 
-      const promise = getEntry(executor, "s1", "foo");
+      const promise = getEntry(knex, "s1", "foo");
       let result: JSONValue | undefined;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let error: any | undefined;
@@ -101,7 +107,7 @@ test("getEntry RoundTrip types", async () => {
 
 test("getEntries", async () => {
   await withExecutor(async (executor) => {
-    await executor(`delete from entry where spaceid = 's1'`);
+    await executor<EntryRow>("entry").delete().where({ spaceid: "s1" });
     await putEntry(executor, "s1", "foo", "foo", 1);
     await putEntry(executor, "s1", "bar", "bar", 1);
     await putEntry(executor, "s1", "baz", "baz", 1);
@@ -184,7 +190,9 @@ test("putEntry", async () => {
 
   await withExecutor(async (executor) => {
     for (const c of cases) {
-      await executor(`delete from entry where spaceid = 's1' and key = 'foo'`);
+      await executor<EntryRow>("entry")
+        .delete()
+        .where({ spaceid: "s1", key: "foo" });
 
       let res: Promise<void>;
       if (c.duplicate) {
@@ -197,13 +205,12 @@ test("putEntry", async () => {
 
       await res.catch(() => ({}));
 
-      const qr = await executor(
-        `select spaceid, key, value, deleted, version
-        from entry where spaceid = 's1' and key = 'foo'`
+      const row = entryRow.parse(
+        await executor<EntryRow>("entry")
+          .first()
+          .where({ spaceid: "s1", key: "foo" })
       );
-      const [row] = qr.rows;
 
-      expect(row, c.name).not.undefined;
       const { spaceid, key, value, deleted, version } = row;
       expect(spaceid, c.name).eq("s1");
       expect(key, c.name).eq("foo");
@@ -231,11 +238,16 @@ test("delEntry", async () => {
   ];
   for (const c of cases) {
     await withExecutor(async (executor) => {
-      await executor(`delete from entry where spaceid = 's1' and key = 'foo'`);
+      await executor<EntryRow>("entry")
+        .delete()
+        .where({ spaceid: "s1", key: "foo" });
       if (c.exists) {
-        await executor(
-          `insert into entry (spaceid, key, value, deleted, version, lastmodified) values ('s1', 'foo', '42', false, 1, now())`
-        );
+        executor<EntryRow>("entry").insert({
+          spaceid: "s1",
+          key: "foo",
+          value: "42",
+          version: 1,
+        });
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -244,10 +256,9 @@ test("delEntry", async () => {
         (e) => (error = String(e))
       );
 
-      const qr = await executor(
-        `select spaceid, key, value, deleted, version from entry where spaceid = 's1' and key = 'foo'`
+      const row = entryRow.parse(
+        await executor("enry").first().where({ spaceid: "s1", key: "foo" })
       );
-      const [row] = qr.rows;
 
       if (c.exists) {
         expect(row, c.name).not.undefined;

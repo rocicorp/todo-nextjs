@@ -14,6 +14,10 @@ const k = knex({
 
 export type TransactionBodyFn<R> = (knex: Knex) => Promise<R>;
 
+export async function withExecutor<R>(body: TransactionBodyFn<R>): Promise<R> {
+  return await body(k);
+}
+
 /**
  * Invokes a supplied function within an RDS transaction.
  * @param body Function to invoke. If this throws, the transaction will be rolled

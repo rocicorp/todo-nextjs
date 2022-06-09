@@ -38,7 +38,7 @@ export const spaceRow = z.object({
   version: z.number(),
   lastmodified: z.date(),
 });
-type SpaceRow = z.infer<typeof spaceRow>;
+export type SpaceRow = z.infer<typeof spaceRow>;
 
 const clientRow = z.object({
   id: z.string(),
@@ -79,10 +79,10 @@ export async function createSchemaVersion1(knex: Knex) {
   await knex("meta").insert<MetaRow>({ key: "schemaVersion", value: 1 });
 }
 
-const entryRow = z.object({
+export const entryRow = z.object({
   spaceid: z.string(),
   key: z.string(),
-  value: z.string(),
+  value: z.any(),
   deleted: z.boolean(),
   version: z.number(),
   lastmodified: z.date(),

@@ -2,7 +2,7 @@ import { ReplicacheTransaction } from "./replicache-transaction";
 import { expect } from "chai";
 import { test, setup } from "mocha";
 import { transact, withExecutor } from "./pg";
-import { createDatabase, getEntry, putEntry } from "./data";
+import { createDatabase, entryRow, getEntry, putEntry } from "./data";
 import { ScanOptions } from "replicache";
 
 setup(async () => {
@@ -30,12 +30,10 @@ test("ReplicacheTransaction", async () => {
     await t2.flush();
 
     expect(await getEntry(executor, "s1", "foo")).equal(undefined);
-    const qr = await executor(
-      `select value, deleted, version
-      from entry where spaceid = 's1' and key = 'foo'`
+    const qr = entryRow.parse(
+      await executor("entry").first().where({ spaceid: "s1", key: "foo" })
     );
-    const [row] = qr.rows;
-    expect(row).deep.equal({
+    expect(qr).deep.equal({
       value: `"bar"`,
       deleted: true,
       version: 2,
