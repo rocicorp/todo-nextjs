@@ -61,7 +61,8 @@ test("getEntry", async () => {
           key: "foo",
           version: 1,
           value: c.validJSON ? JSON.stringify(42) : "not json",
-          deleted: c.deleted,
+          deleted: Number(c.deleted),
+          lastmodified: new Date(),
         });
       }
 
@@ -248,7 +249,8 @@ test("delEntry", async () => {
           key: "foo",
           value: "42",
           version: 1,
-          deleted: false,
+          deleted: 0,
+          lastmodified: new Date(),
         });
       }
 
@@ -268,7 +270,7 @@ test("delEntry", async () => {
         expect(spaceid, c.name).eq("s1");
         expect(key, c.name).eq("foo");
         expect(value, c.name).eq("42");
-        expect(deleted, c.name).true;
+        expect(deleted, c.name).eq(1);
         expect(version, c.name).eq(2);
       } else {
         expect(row, c.name).undefined;

@@ -20,7 +20,7 @@ export const entryRow = z.object({
   spaceid: z.string(),
   key: z.string(),
   value: z.string(),
-  deleted: z.boolean(),
+  deleted: z.number(),
   version: z.number(),
   lastmodified: z.date(),
 });
@@ -64,20 +64,20 @@ export async function createSchemaVersion1(knex: Knex) {
     .createTable("space", (table) => {
       table.text("id").primary().notNullable();
       table.integer("version").notNullable();
-      table.timestamp("lastmodified").notNullable().defaultTo(knex.fn.now());
+      table.timestamp("lastmodified").notNullable();
     })
     .createTable("client", (table) => {
       table.text("id").primary().notNullable();
       table.integer("lastmutationid").notNullable();
-      table.timestamp("lastmodified").notNullable().defaultTo(knex.fn.now());
+      table.timestamp("lastmodified").notNullable();
     })
     .createTable("entry", (table) => {
       table.text("spaceid").notNullable();
       table.text("key").notNullable();
       table.text("value").notNullable();
-      table.boolean("deleted").notNullable();
+      table.integer("deleted").notNullable();
       table.integer("version").notNullable();
-      table.timestamp("lastmodified").notNullable().defaultTo(knex.fn.now());
+      table.timestamp("lastmodified").notNullable();
       table.unique(["spaceid", "key"]);
       table.index("spaceid");
       table.index("deleted");
@@ -116,6 +116,7 @@ export async function putEntry(
       value: JSON.stringify(value),
       deleted: false,
       version,
+      lastmodified: new Date(),
     })
     .onConflict(["spaceid", "key"])
     .merge();
@@ -161,7 +162,7 @@ export async function getChangedEntries(
     .andWhere("version", ">", prevVersion);
   return rows.map((row) => {
     const entry = entryRow.parse(row);
-    return [entry.key, JSON.parse(entry.value), entry.deleted];
+    return [entry.key, JSON.parse(entry.value), Boolean(entry.deleted)];
   });
 }
 
@@ -182,7 +183,7 @@ export async function setCookie(
   version: number
 ): Promise<void> {
   await knex<SpaceRow>("space")
-    .insert({ id: spaceID, version })
+    .insert({ id: spaceID, version, lastmodified: new Date() })
     .onConflict("id")
     .merge();
 }
@@ -206,7 +207,11 @@ export async function setLastMutationID(
   lastMutationID: number
 ): Promise<void> {
   await knex<ClientRow>("client")
-    .insert({ id: clientID, lastmutationid: lastMutationID })
+    .insert({
+      id: clientID,
+      lastmutationid: lastMutationID,
+      lastmodified: new Date(),
+    })
     .onConflict("id")
     .merge();
 }

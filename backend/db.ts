@@ -1,19 +1,23 @@
 // TODO: sqlite
 import knex, { Knex } from "knex";
 
-const k = knex({
+const pg = {
   client: "pg",
-  connection: {
-    host: "localhost",
-    user: "postgres",
-    database: "todo",
-  },
+  connection: process.env.PG_CONNECTION_STRING,
   asyncStackTraces: true,
   pool: {
     min: 0,
     max: 10,
   },
-});
+};
+const sqlite = {
+  client: "sqlite3",
+  connection: {
+    filename: "./sqlite.db",
+  },
+  useNullAsDefault: true,
+};
+const k = knex(sqlite);
 
 export type TransactionBodyFn<R> = (knex: Knex) => Promise<R>;
 
