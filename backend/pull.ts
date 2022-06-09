@@ -1,11 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { transact } from "./pg";
-import {
-  createDatabase,
-  getChangedEntries,
-  getCookie,
-  getLastMutationID,
-} from "./data";
+import { getChangedEntries, getCookie, getLastMutationID } from "./data";
 import { z } from "zod";
 import { PullResponse } from "replicache";
 

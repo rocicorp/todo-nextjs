@@ -1,13 +1,9 @@
 import { ReplicacheTransaction } from "./replicache-transaction";
 import { expect } from "chai";
-import { test, setup } from "mocha";
-import { transact, withExecutor } from "./pg";
-import { createDatabase, getEntry, putEntry } from "./data";
+import { test } from "mocha";
+import { withExecutor } from "./pg";
+import { getEntry, putEntry } from "./data";
 import { ScanOptions } from "replicache";
-
-setup(async () => {
-  await transact((executor) => createDatabase(executor));
-});
 
 test("ReplicacheTransaction", async () => {
   await withExecutor(async (executor) => {
