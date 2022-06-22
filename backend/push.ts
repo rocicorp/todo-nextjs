@@ -9,7 +9,7 @@ import { ReplicacheTransaction } from "./replicache-transaction";
 import { mutators } from "../frontend/mutators";
 import { z } from "zod";
 import { parseIfDebug } from "@rocicorp/rails";
-import Pusher from "pusher";
+import { pokeSpace } from "./poke";
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -91,27 +91,7 @@ export async function push(spaceID: string, requestBody: any) {
       tx.flush(),
     ]);
 
-    if (
-      process.env.NEXT_PUBLIC_PUSHER_APP_ID &&
-      process.env.NEXT_PUBLIC_PUSHER_KEY &&
-      process.env.NEXT_PUBLIC_PUSHER_SECRET &&
-      process.env.NEXT_PUBLIC_PUSHER_CLUSTER
-    ) {
-      const startPoke = Date.now();
-
-      const pusher = new Pusher({
-        appId: process.env.NEXT_PUBLIC_PUSHER_APP_ID,
-        key: process.env.NEXT_PUBLIC_PUSHER_KEY,
-        secret: process.env.NEXT_PUBLIC_PUSHER_SECRET,
-        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-        useTLS: true,
-      });
-
-      await pusher.trigger("default", "poke", {});
-      console.log("Poke took", Date.now() - startPoke);
-    } else {
-      console.log("Not poking because Pusher is not configured");
-    }
+    pokeSpace(spaceID);
   });
 
   console.log("Processed all mutations in", Date.now() - t0);

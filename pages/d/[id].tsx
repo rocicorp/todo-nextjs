@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 
 import App from "../../frontend/app";
-import Pusher from "pusher-js";
 
 import { Replicache } from "replicache";
 import { M, mutators } from "../../frontend/mutators";
@@ -61,23 +60,17 @@ export default function Home() {
       });
 
       // Replicache uses an empty "poke" message sent over pubsub to know when
-      // to get changes from the server. This demo app uses Pusher to send pokes
-      // but there are lots of ways to do it.
+      // to get changes from the server. This demo app uses server-sent events to
+      // send pokes but there are lots of ways to do it.
       // See: https://doc.replicache.dev/how-it-works#poke-optional.
-      if (
-        process.env.NEXT_PUBLIC_PUSHER_KEY &&
-        process.env.NEXT_PUBLIC_PUSHER_CLUSTER
-      ) {
-        Pusher.logToConsole = true;
-        const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
-          cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-        });
-
-        const channel = pusher.subscribe("default");
-        channel.bind("poke", () => {
+      const ev = new EventSource(`/api/replicache-poke?spaceID=${spaceID}`, {
+        withCredentials: true,
+      });
+      ev.onmessage = (event) => {
+        if (event.data === "poke") {
           r.pull();
-        });
-      }
+        }
+      };
 
       setRep(r);
     })();
