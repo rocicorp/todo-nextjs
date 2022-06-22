@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { GetServerSideProps } from "next";
 import { createSpace } from "../backend/data";
 import { transact } from "../backend/pg";
+import { createDatabase } from "../backend/schema";
 
 function Page() {
   return "";

@@ -1,8 +1,7 @@
 import { expect } from "chai";
-import { setup, test } from "mocha";
+import { test } from "mocha";
 import { JSONValue } from "replicache";
 import {
-  createDatabase,
   createSpace,
   delEntry,
   getCookie,
@@ -12,10 +11,6 @@ import {
   setCookie,
 } from "./data";
 import { transact, withExecutor } from "./pg";
-
-setup(async () => {
-  await transact((executor) => createDatabase(executor));
-});
 
 test("getEntry", async () => {
   type Case = {
@@ -296,7 +291,7 @@ test("createSpace", async () => {
         expect(c.exists).false;
       } catch (e) {
         expect(String(e)).contains(
-          ` Error executing SQL: insert into space (id, version, lastmodified) values ($1, 0, now()): error: duplicate key value violates unique constraint "space_pkey`
+          `duplicate key value violates unique constraint "space_pkey`
         );
         expect(c.exists).true;
       }
@@ -345,7 +340,7 @@ test("getCookie", async () => {
       }
 
       const cookie = await getCookie(executor, "foo");
-      expect(cookie).eq(c.exists ? 43 : undefined);
+      expect(cookie).eq(c.exists ? 42 : undefined);
     });
   }
 });

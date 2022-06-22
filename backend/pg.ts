@@ -1,33 +1,49 @@
 // Low-level config and utilities for Postgres.
 
 import { Pool, QueryResult } from "pg";
+import { newDb } from "pg-mem";
+import { createDatabase } from "./schema";
 
-const pool = new Pool(
-  process.env.DATABASE_URL
-    ? {
-        connectionString: process.env.DATABASE_URL,
-      }
-    : undefined
-);
+export const memdb = !process.env.DATABASE_URL;
 
-// the pool will emit an error on behalf of any idle clients
-// it contains if a backend error or network partition happens
-pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
-  process.exit(-1);
-});
+const pool = (async () => {
+  const global = (globalThis as unknown) as {
+    _pool: Pool;
+  };
+  if (!global._pool) {
+    console.log("creating global pool");
+    const pool = memdb
+      ? (new (newDb().adapters.createPg().Pool)() as Pool)
+      : new Pool({ connectionString: process.env.DATABASE_URL });
+    await withExecutorAndPool(createDatabase, pool);
 
-pool.on("connect", (client) => {
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  client.query(
-    "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE"
-  );
-});
+    // the pool will emit an error on behalf of any idle clients
+    // it contains if a backend error or network partition happens
+    pool.on("error", (err) => {
+      console.error("Unexpected error on idle client", err);
+      process.exit(-1);
+    });
+    pool.on("connect", async (client) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      client.query(
+        "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE"
+      );
+    });
+    global._pool = pool;
+  }
+  return global._pool;
+})();
 
-export async function withExecutor<R>(
-  f: (executor: Executor) => R
+export async function withExecutor<R>(f: (executor: Executor) => R) {
+  const p = await pool;
+  return withExecutorAndPool(f, p);
+}
+
+async function withExecutorAndPool<R>(
+  f: (executor: Executor) => R,
+  p: Pool
 ): Promise<R> {
-  const client = await pool.connect();
+  const client = await p.connect();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const executor = async (sql: string, params?: any[]) => {

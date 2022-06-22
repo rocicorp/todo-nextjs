@@ -1,6 +1,5 @@
 import { transact } from "./pg";
 import {
-  createDatabase,
   getCookie,
   getLastMutationID,
   setCookie,
