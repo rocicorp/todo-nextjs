@@ -1,6 +1,6 @@
 import { JSONValue } from "replicache";
 import { z } from "zod";
-import { Executor } from "./pg";
+import { Executor, transact } from "./pg";
 
 export async function createDatabase(executor: Executor) {
   const schemaVersion = await getSchemaVersion(executor);
@@ -135,6 +135,16 @@ export async function getChangedEntries(
   return rows.map((row) => [row.key, JSON.parse(row.value), row.deleted]);
 }
 
+export async function createSpace(
+  executor: Executor,
+  spaceID: string
+): Promise<void> {
+  await executor(
+    `insert into space (id, version, lastmodified) values ($1, 0, now())`,
+    [spaceID]
+  );
+}
+
 export async function getCookie(
   executor: Executor,
   spaceID: string
@@ -155,10 +165,7 @@ export async function setCookie(
   version: number
 ): Promise<void> {
   await executor(
-    `
-    insert into space (id, version, lastmodified) values ($1, $2, now())
-      on conflict (id) do update set version = $2, lastmodified = now()
-    `,
+    `update space set version = $2, lastmodified = now() where id = $1`,
     [spaceID, version]
   );
 }

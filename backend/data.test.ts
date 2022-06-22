@@ -3,10 +3,13 @@ import { setup, test } from "mocha";
 import { JSONValue } from "replicache";
 import {
   createDatabase,
+  createSpace,
   delEntry,
+  getCookie,
   getEntries,
   getEntry,
   putEntry,
+  setCookie,
 } from "./data";
 import { transact, withExecutor } from "./pg";
 
@@ -261,6 +264,88 @@ test("delEntry", async () => {
         expect(row, c.name).undefined;
         expect(error, c.name).undefined;
       }
+    });
+  }
+});
+
+test("createSpace", async () => {
+  type Case = {
+    name: string;
+    exists: boolean;
+  };
+  const cases: Case[] = [
+    {
+      name: "does not exist",
+      exists: false,
+    },
+    {
+      name: "exists",
+      exists: true,
+    },
+  ];
+  for (const c of cases) {
+    await withExecutor(async (executor) => {
+      await executor(`delete from space where id = 'foo'`);
+      if (c.exists) {
+        await createSpace(executor, "foo");
+        await setCookie(executor, "foo", 42);
+      }
+
+      try {
+        await createSpace(executor, "foo");
+        expect(c.exists).false;
+      } catch (e) {
+        expect(String(e)).contains(
+          ` Error executing SQL: insert into space (id, version, lastmodified) values ($1, 0, now()): error: duplicate key value violates unique constraint "space_pkey`
+        );
+        expect(c.exists).true;
+      }
+
+      const res = await executor(`select * from space where id = 'foo'`);
+      expect(res.rowCount).eq(1);
+      const [row] = res.rows;
+      if (c.exists) {
+        expect(row).deep.equal({
+          id: "foo",
+          version: 42,
+          lastmodified: row.lastmodified,
+        });
+      } else {
+        expect(row).deep.equal({
+          id: "foo",
+          version: 0,
+          lastmodified: row.lastmodified,
+        });
+      }
+    });
+  }
+});
+
+test("getCookie", async () => {
+  type Case = {
+    name: string;
+    exists: boolean;
+  };
+  const cases: Case[] = [
+    {
+      name: "does not exist",
+      exists: false,
+    },
+    {
+      name: "exists",
+      exists: true,
+    },
+  ];
+  for (const c of cases) {
+    await withExecutor(async (executor) => {
+      await executor(`delete from space where id = 'foo'`);
+      if (c.exists) {
+        await createSpace(executor, "foo");
+        await setCookie(executor, "foo", 42);
+      }
+
+      const cookie = await getCookie(executor, "foo");
+      expect(cookie).eq(c.exists ? 43 : undefined);
     });
   }
 });
