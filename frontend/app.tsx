@@ -7,15 +7,19 @@ import MainSection from "./main-section";
 import { M } from "./mutators";
 import { listTodos, TodoUpdate } from "./todo";
 
+// This is the top level React component of any interest.
 const App = ({ rep }: { rep: Replicache<M> }) => {
+  // Subscribe to all todos and sort them.
   const todos = useSubscribe(rep, listTodos, [], [rep]);
   todos.sort((a, b) => a.sort - b.sort);
 
+  // Define basic event handlers and connect them to Replicache mutators. Each
+  // of these mutators runs immediately (optimistically) locally, then runs
+  // again on the server-side automatically.
   const handleNewItem = (text: string) =>
-    rep.mutate.putTodo({
+    rep.mutate.createTodo({
       id: nanoid(),
       text,
-      sort: todos.length > 0 ? todos[todos.length - 1].sort + 1 : 0,
       completed: false,
     });
 
