@@ -14,7 +14,15 @@ const pool = (async () => {
     console.log("creating global pool");
     const pool = memdb
       ? (new (newDb().adapters.createPg().Pool)() as Pool)
-      : new Pool({ connectionString: process.env.DATABASE_URL });
+      : new Pool({
+          connectionString: process.env.DATABASE_URL,
+          ssl:
+            process.env.NODE_ENV === "production"
+              ? {
+                  rejectUnauthorized: false,
+                }
+              : undefined,
+        });
     await withExecutorAndPool(createDatabase, pool);
 
     // the pool will emit an error on behalf of any idle clients
