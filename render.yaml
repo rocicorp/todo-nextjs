@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: replicache-todo
+    env: node
+    region: oregon # optional (defaults to oregon)
+    plan: starter # optional (defaults to starter)
+    buildCommand: "npm install && npm run build" # optional (defaults to Dockerfile command)
+    startCommand: "npm run start"
+    numInstances: 1 # optional (defaults to 1)
+    envVars:
+      - key: NEXT_PUBLIC_REPLICACHE_LICENSE_KEY
+        value: TODO_PUT_LICENSE_KEY_HERE
+      - key: DATABASE_URL
+        fromDatabase:
+          name: replicache-todo
+          property: connectionString
+
+databases:
+  - name: replicache-todo
+    databaseName: db
