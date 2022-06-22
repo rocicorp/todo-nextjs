@@ -30,8 +30,6 @@ export async function pull(
 
   const [entries, lastMutationID, responseCookie] = await transact(
     async (executor) => {
-      await createDatabase(executor);
-
       return Promise.all([
         getChangedEntries(executor, spaceID, requestCookie ?? 0),
         getLastMutationID(executor, pull.clientID),
@@ -44,9 +42,13 @@ export async function pull(
   console.log("responseCookie: ", responseCookie);
   console.log("Read all objects in", Date.now() - t0);
 
+  if (responseCookie === undefined) {
+    throw new Error(`Unknown space ${spaceID}`);
+  }
+
   const resp: PullResponse = {
     lastMutationID: lastMutationID ?? 0,
-    cookie: responseCookie ?? 0,
+    cookie: responseCookie,
     patch: [],
   };
 

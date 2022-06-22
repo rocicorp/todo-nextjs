@@ -23,6 +23,8 @@ const pushRequestSchema = z.object({
   mutations: z.array(mutationSchema),
 });
 
+export type Error = "SpaceNotFound";
+
 export async function push(spaceID: string, requestBody: any) {
   console.log("Processing push", JSON.stringify(requestBody, null, ""));
 
@@ -30,9 +32,11 @@ export async function push(spaceID: string, requestBody: any) {
 
   const t0 = Date.now();
   await transact(async (executor) => {
-    await createDatabase(executor);
+    const prevVersion = await getCookie(executor, spaceID);
+    if (prevVersion === undefined) {
+      throw new Error(`Unknown space ${spaceID}`);
+    }
 
-    const prevVersion = (await getCookie(executor, spaceID)) ?? 0;
     const nextVersion = prevVersion + 1;
     let lastMutationID =
       (await getLastMutationID(executor, push.clientID)) ?? 0;

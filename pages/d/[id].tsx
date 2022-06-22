@@ -3,6 +3,33 @@ import { Replicache } from "replicache";
 import { M, mutators } from "../../frontend/mutators";
 import App from "../../frontend/app";
 import Pusher from "pusher-js";
+import { GetServerSideProps } from "next";
+import { transact } from "../../backend/pg";
+import { getCookie } from "../../backend/data";
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [, , spaceID] = context.resolvedUrl.split("/");
+  if (spaceID === undefined) {
+    throw new Error("Missing spaceID path component");
+  }
+
+  const cookie = await transact(async (executor) => {
+    return await getCookie(executor, spaceID);
+  });
+
+  if (cookie === undefined) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
 
 export default function Home() {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
