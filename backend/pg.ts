@@ -10,6 +10,7 @@ const pool = (async () => {
   const global = (globalThis as unknown) as {
     _pool: Pool;
   };
+  console.log("global._pool is", global._pool);
   if (!global._pool) {
     console.log("creating global pool");
     const pool = memdb
