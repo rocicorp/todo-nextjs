@@ -10,6 +10,7 @@ const pool = (async () => {
   const global = (globalThis as unknown) as {
     _pool: Pool;
   };
+  console.log("global._pool is", global._pool);
   if (!global._pool) {
     console.log("creating global pool");
     const pool = memdb
@@ -23,7 +24,10 @@ const pool = (async () => {
                 }
               : undefined,
         });
-    await withExecutorAndPool(createDatabase, pool);
+
+    await withExecutorAndPool(async (executor) => {
+      await transactWithExecutor(executor, createDatabase);
+    }, pool);
 
     // the pool will emit an error on behalf of any idle clients
     // it contains if a backend error or network partition happens
@@ -77,7 +81,7 @@ export type Executor = (sql: string, params?: any[]) => Promise<QueryResult>;
 export type TransactionBodyFn<R> = (executor: Executor) => Promise<R>;
 
 /**
- * Invokes a supplied function within an RDS transaction.
+ * Invokes a supplied function within a transaction.
  * @param body Function to invoke. If this throws, the transaction will be rolled
  * back. The thrown error will be re-thrown.
  */
