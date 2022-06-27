@@ -1,49 +1,48 @@
 // Low-level config and utilities for Postgres.
 
 import { Pool, QueryResult } from "pg";
-import { newDb } from "pg-mem";
 import { createDatabase } from "./schema";
+import { getDBConfig } from "./pgconfig/pgconfig";
 
-export const memdb = !process.env.DATABASE_URL;
+const pool = getPool();
 
-const pool = (async () => {
+async function getPool() {
   const global = (globalThis as unknown) as {
     _pool: Pool;
   };
   if (!global._pool) {
-    console.log("creating global pool");
-    const pool = memdb
-      ? (new (newDb().adapters.createPg().Pool)() as Pool)
-      : new Pool({
-          connectionString: process.env.DATABASE_URL,
-          ssl:
-            process.env.NODE_ENV === "production"
-              ? {
-                  rejectUnauthorized: false,
-                }
-              : undefined,
-        });
-
-    await withExecutorAndPool(async (executor) => {
-      await transactWithExecutor(executor, createDatabase);
-    }, pool);
-
-    // the pool will emit an error on behalf of any idle clients
-    // it contains if a backend error or network partition happens
-    pool.on("error", (err) => {
-      console.error("Unexpected error on idle client", err);
-      process.exit(-1);
-    });
-    pool.on("connect", async (client) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      client.query(
-        "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE"
-      );
-    });
-    global._pool = pool;
+    global._pool = await initPool();
   }
   return global._pool;
-})();
+}
+
+async function initPool() {
+  console.log("creating global pool");
+
+  const dbConfig = getDBConfig();
+  const pool = dbConfig.initPool();
+
+  // the pool will emit an error on behalf of any idle clients
+  // it contains if a backend error or network partition happens
+  pool.on("error", (err) => {
+    console.error("Unexpected error on idle client", err);
+    process.exit(-1);
+  });
+  pool.on("connect", async (client) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    client.query(
+      "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE"
+    );
+  });
+
+  await withExecutorAndPool(async (executor) => {
+    await transactWithExecutor(executor, async (executor) => {
+      await createDatabase(executor, dbConfig);
+    });
+  }, pool);
+
+  return pool;
+}
 
 export async function withExecutor<R>(f: (executor: Executor) => R) {
   const p = await pool;

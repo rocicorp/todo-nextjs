@@ -1,31 +1,16 @@
-import { Executor, memdb } from "./pg";
+import { PGConfig } from "./pgconfig/pgconfig";
+import { Executor } from "./pg";
 import { getPokeBackend } from "./poke/poke";
 
-export async function createDatabase(executor: Executor) {
+export async function createDatabase(executor: Executor, dbConfig: PGConfig) {
   console.log("creating database");
-  const schemaVersion = await getSchemaVersion(executor);
+  const schemaVersion = await dbConfig.getSchemaVersion(executor);
   if (schemaVersion < 0 || schemaVersion > 1) {
     throw new Error("Unexpected schema version: " + schemaVersion);
   }
   if (schemaVersion === 0) {
     await createSchemaVersion1(executor);
   }
-}
-
-async function getSchemaVersion(executor: Executor) {
-  if (memdb) {
-    return 0;
-  }
-  const metaExists = await executor(`select exists(
-      select from pg_tables where schemaname = 'public' and tablename = 'meta')`);
-  if (!metaExists.rows[0].exists) {
-    return 0;
-  }
-
-  const qr = await executor(
-    `select value from meta where key = 'schemaVersion'`
-  );
-  return qr.rows[0].value;
 }
 
 export async function createSchemaVersion1(executor: Executor) {
