@@ -62,7 +62,7 @@ export default function Home() {
 
       // Replicache uses an empty "poke" message sent over some pubsub channel
       // to know when to pull changes from the server. There are many ways to
-      // implement pokes. This sample app implements two different mechanisms.
+      // implement pokes. This sample app implements two different ways.
       // By default, we use Server-Sent Events. This is simple, cheap, and fast,
       // but requires a stateful server to keep the SSE channels open. For
       // serverless platforms we also support pokes via Supabase. See:

@@ -1,5 +1,5 @@
 import { Executor } from "../pg";
-import { supabaseConfig } from "../supabase";
+import { getSupabaseServerConfig } from "../supabase";
 import { SSEPokeBackend } from "./sse";
 import { SupabasePokeBackend } from "./supabase";
 
@@ -21,7 +21,8 @@ export function getPokeBackend() {
 }
 
 function initPokeBackend() {
-  if (supabaseConfig) {
+  const supabaseServerConfig = getSupabaseServerConfig();
+  if (supabaseServerConfig) {
     console.log("Creating SupabasePokeBackend");
     return new SupabasePokeBackend();
   } else {
