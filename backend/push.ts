@@ -9,7 +9,7 @@ import { ReplicacheTransaction } from "./replicache-transaction";
 import { mutators } from "../frontend/mutators";
 import { z } from "zod";
 import { parseIfDebug } from "@rocicorp/rails";
-import { pokeSpace } from "./poke";
+import { getPokeBackend } from "./poke/poke";
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -91,7 +91,8 @@ export async function push(spaceID: string, requestBody: any) {
       tx.flush(),
     ]);
 
-    pokeSpace(spaceID);
+    const pokeBackend = getPokeBackend();
+    await pokeBackend.poke(spaceID);
   });
 
   console.log("Processed all mutations in", Date.now() - t0);

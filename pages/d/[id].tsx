@@ -7,6 +7,7 @@ import { Replicache } from "replicache";
 import { M, mutators } from "../../frontend/mutators";
 import { transact } from "../../backend/pg";
 import { getCookie } from "../../backend/data";
+import { getPokeReceiver } from "../../frontend/poke";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const [, , spaceID] = context.resolvedUrl.split("/");
@@ -59,18 +60,20 @@ export default function Home() {
         mutators,
       });
 
-      // Replicache uses an empty "poke" message sent over pubsub to know when
-      // to get changes from the server. This demo app uses server-sent events to
-      // send pokes but there are lots of ways to do it.
-      // See: https://doc.replicache.dev/how-it-works#poke-optional.
-      const ev = new EventSource(`/api/replicache-poke?spaceID=${spaceID}`, {
-        withCredentials: true,
+      // Replicache uses an empty "poke" message sent over some pubsub channel
+      // to know when to pull changes from the server. There are many ways to
+      // implement pokes. This sample app implements two different mechanisms.
+      // By default, we use Server-Sent Events. This is simple, cheap, and fast,
+      // but requires a stateful server to keep the SSE channels open. For
+      // serverless platforms we also support pokes via Supabase. See:
+      // - https://doc.replicache.dev/deploy
+      // - https://doc.replicache.dev/how-it-works#poke-optional
+      // - https://github.com/supabase/realtime
+      // - https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+      const pokeReceiver = getPokeReceiver();
+      pokeReceiver(spaceID, async () => {
+        await r.pull();
       });
-      ev.onmessage = (event) => {
-        if (event.data === "poke") {
-          r.pull();
-        }
-      };
 
       setRep(r);
     })();
