@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { listen } from "../../backend/poke";
+import { getPokeBackend } from "../../backend/poke/poke";
+import { SSEPokeBackend } from "../../backend/poke/sse";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const spaceID = req.query["spaceID"].toString();
@@ -12,7 +13,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   res.write(`id: ${Date.now()}\n`);
   res.write(`data: hello\n\n`);
 
-  const unlisten = listen(spaceID, () => {
+  const pokeBackend = getPokeBackend() as SSEPokeBackend;
+  if (!pokeBackend.addListener) {
+    throw new Error(
+      "Unsupported configuration. Expected to be configured using server-sent events for poke."
+    );
+  }
+
+  const unlisten = pokeBackend.addListener(spaceID, () => {
     res.write(`id: ${Date.now()}\n`);
     res.write(`data: poke\n\n`);
   });
