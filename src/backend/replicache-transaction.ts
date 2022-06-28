@@ -63,6 +63,7 @@ export class ReplicacheTransaction implements WriteTransaction {
   }
 
   async isEmpty(): Promise<boolean> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of this.scan()) {
       return false;
     }

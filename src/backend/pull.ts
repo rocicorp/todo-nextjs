@@ -16,7 +16,7 @@ export async function pull(
   console.log(`Processing pull`, JSON.stringify(requestBody, null, ""));
 
   const pull = pullRequest.parse(requestBody);
-  let requestCookie = pull.cookie;
+  const requestCookie = pull.cookie;
 
   console.log("spaceID", spaceID);
   console.log("clientID", pull.clientID);
@@ -47,7 +47,7 @@ export async function pull(
     patch: [],
   };
 
-  for (let [key, value, deleted] of entries) {
+  for (const [key, value, deleted] of entries) {
     if (deleted) {
       resp.patch.push({
         op: "del",

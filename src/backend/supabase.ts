@@ -1,9 +1,12 @@
 const clientEnvVars = {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 };
 const serverEnvVars = {
   ...clientEnvVars,
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   dbpass: process.env.SUPABASE_DATABASE_PASSWORD!,
 };
 

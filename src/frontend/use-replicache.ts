@@ -18,6 +18,7 @@ export function useReplicache<M extends MutatorDefs>(
 
       const r = new Replicache({
         // See https://doc.replicache.dev/licensing for how to get a license key.
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         licenseKey: process.env.NEXT_PUBLIC_REPLICACHE_LICENSE_KEY!,
         pushURL: `/api/replicache/push?spaceID=${spaceID}`,
         pullURL: `/api/replicache/pull?spaceID=${spaceID}`,
@@ -41,7 +42,7 @@ export function useReplicache<M extends MutatorDefs>(
       });
 
       setRep(r);
-    })();
+    })().catch((e) => console.error(e));
   }, [spaceID, mutators]);
 
   if (!rep) {

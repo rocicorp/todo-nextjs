@@ -39,7 +39,7 @@ export class SSEPokeBackend implements PokeBackend {
     }
   }
 
-  private async _removeListener(spaceID: string, listener: () => void) {
+  private _removeListener(spaceID: string, listener: () => void) {
     const set = this._listeners.get(spaceID);
     if (!set) {
       return;

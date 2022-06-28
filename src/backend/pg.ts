@@ -7,7 +7,8 @@ import { getDBConfig } from "./pgconfig/pgconfig";
 const pool = getPool();
 
 async function getPool() {
-  const global = (globalThis as unknown) as {
+  const global = globalThis as unknown as {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     _pool: Pool;
   };
   if (!global._pool) {
@@ -62,7 +63,7 @@ async function withExecutorAndPool<R>(
     } catch (e) {
       throw new Error(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        `Error executing SQL: ${sql}: ${((e as unknown) as any).toString()}`
+        `Error executing SQL: ${sql}: ${(e as unknown as any).toString()}`
       );
     }
   };

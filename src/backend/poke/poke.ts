@@ -11,7 +11,8 @@ export interface PokeBackend {
 export function getPokeBackend() {
   // The SSE impl has to keep process-wide state using the global object.
   // Otherwise the state is lost during hot reload in dev.
-  const global = (globalThis as unknown) as {
+  const global = globalThis as unknown as {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     _pokeBackend: PokeBackend | undefined;
   };
   if (!global._pokeBackend) {

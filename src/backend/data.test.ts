@@ -191,6 +191,7 @@ test("putEntry", async () => {
           await delEntry(executor, "s1", "foo", 1);
         }
       }
+      // eslint-disable-next-line prefer-const
       res = putEntry(executor, "s1", "foo", 42, 2);
 
       await res.catch(() => ({}));

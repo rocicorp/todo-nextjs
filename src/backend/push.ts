@@ -26,6 +26,7 @@ export type Error = "SpaceNotFound";
 
 export async function push<M extends MutatorDefs>(
   spaceID: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestBody: any,
   mutators: M
 ) {
@@ -72,6 +73,7 @@ export async function push<M extends MutatorDefs>(
       console.log("Processing mutation:", JSON.stringify(mutation, null, ""));
 
       const t1 = Date.now();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mutator = (mutators as any)[mutation.name];
       if (!mutator) {
         console.error(`Unknown mutator: ${mutation.name} - skipping`);
