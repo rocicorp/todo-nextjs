@@ -38,7 +38,7 @@ function supabaseReceiver(
 // Implements a Replicache poke using Server-Sent Events.
 // See: backend/poke/sse.ts.
 function sseReceiver(spaceID: string, onPoke: () => Promise<void>) {
-  const ev = new EventSource(`/api/replicache-poke-sse?spaceID=${spaceID}`, {
+  const ev = new EventSource(`/api/replicache/poke-sse?spaceID=${spaceID}`, {
     withCredentials: true,
   });
   ev.onmessage = async (event) => {

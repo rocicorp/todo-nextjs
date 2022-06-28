@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Todo, TodoUpdate } from "./todo";
+import { Todo, TodoUpdate } from "../todo";
 import Footer from "./footer";
 import TodoList from "./todo-list";
 
