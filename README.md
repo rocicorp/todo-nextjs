@@ -1,8 +1,10 @@
 # replicache-todo
 
-A super fast todo list built with Replicache, React, Next.js, Vercel, Postgres, and Pusher.
+A super fast offline-first implementation of [TodoMVC](https://todomvc.com/)
+built with Replicache, Next.js, and Postgres.
 
 The simplest possible starter sample for Replicache.
+
 Intended for customers to clone and start editing.
 
 ## To get started
