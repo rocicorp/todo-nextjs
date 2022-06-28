@@ -6,10 +6,10 @@ import {
   setLastMutationID,
 } from "./data";
 import { ReplicacheTransaction } from "./replicache-transaction";
-import { mutators } from "../../src/mutators";
 import { z } from "zod";
 import { parseIfDebug } from "@rocicorp/rails";
 import { getPokeBackend } from "./poke/poke";
+import { MutatorDefs } from "replicache";
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -24,7 +24,11 @@ const pushRequestSchema = z.object({
 
 export type Error = "SpaceNotFound";
 
-export async function push(spaceID: string, requestBody: any) {
+export async function push<M extends MutatorDefs>(
+  spaceID: string,
+  requestBody: any,
+  mutators: M
+) {
   console.log("Processing push", JSON.stringify(requestBody, null, ""));
 
   const push = parseIfDebug(pushRequestSchema, requestBody);
