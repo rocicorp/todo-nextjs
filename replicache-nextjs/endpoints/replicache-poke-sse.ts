@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getPokeBackend } from "../../backend/poke/poke";
-import { SSEPokeBackend } from "../../backend/poke/sse";
+import { getPokeBackend } from "../backend/poke/poke";
+import { SSEPokeBackend } from "../backend/poke/sse";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export async function handlePokeSSE(req: NextApiRequest, res: NextApiResponse) {
   const spaceID = req.query["spaceID"].toString();
 
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -33,4 +33,4 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   res.on("close", () => {
     unlisten();
   });
-};
+}

@@ -1,8 +1,8 @@
 import { nanoid } from "nanoid";
 import { GetServerSideProps } from "next";
-import { createSpace } from "../backend/data";
-import { transact } from "../backend/pg";
-import { createDatabase } from "../backend/schema";
+import { createSpace } from "../replicache-nextjs/backend/data";
+import { transact } from "../replicache-nextjs/backend/pg";
+import { createDatabase } from "../replicache-nextjs/backend/schema";
 
 function Page() {
   return "";

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 
-import App from "../../frontend/app";
+import App from "../../src/app";
 
 import { Replicache } from "replicache";
-import { M, mutators } from "../../frontend/mutators";
-import { transact } from "../../backend/pg";
-import { getCookie } from "../../backend/data";
-import { getPokeReceiver } from "../../frontend/poke";
+import { M, mutators } from "../../src/mutators";
+import { transact } from "../../replicache-nextjs/backend/pg";
+import { getCookie } from "../../replicache-nextjs/backend/data";
+import { getPokeReceiver } from "../../replicache-nextjs/frontend/poke";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const [, , spaceID] = context.resolvedUrl.split("/");
@@ -54,8 +54,8 @@ export default function Home() {
       const r = new Replicache({
         // See https://doc.replicache.dev/licensing for how to get a license key.
         licenseKey: process.env.NEXT_PUBLIC_REPLICACHE_LICENSE_KEY!,
-        pushURL: `/api/replicache-push?spaceID=${spaceID}`,
-        pullURL: `/api/replicache-pull?spaceID=${spaceID}`,
+        pushURL: `/api/replicache/push?spaceID=${spaceID}`,
+        pullURL: `/api/replicache/pull?spaceID=${spaceID}`,
         name: spaceID,
         mutators,
       });
