@@ -1,8 +1,6 @@
 import { nanoid } from "nanoid";
 import { GetServerSideProps } from "next";
-import { createSpace } from "../replicache-nextjs/backend/data";
-import { transact } from "../replicache-nextjs/backend/pg";
-import { createDatabase } from "../replicache-nextjs/backend/schema";
+import { createSpace } from "../replicache-nextjs/api";
 
 function Page() {
   return "";
@@ -31,9 +29,7 @@ function Page() {
 export const getServerSideProps: GetServerSideProps = async () => {
   // Create a new random space in the backend database.
   const spaceID = nanoid(6);
-  await transact(async (executor) => {
-    await createSpace(executor, spaceID);
-  });
+  await createSpace(spaceID);
   return {
     redirect: {
       destination: `/d/${spaceID}`,

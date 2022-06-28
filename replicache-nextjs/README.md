@@ -1,8 +1,6 @@
 This directory implements a fully generic Replicache backend for Next.js
 using Postgres as the database.
 
-You can ignore this directory, as if it was a package. You won't need to do
-anything in here except in more advanced applications.
-
-This will become a separate package soon, once we have more experience with
-its design.
+For simple apps, you can competely ignore this directory, as if it was a
+package. As your needs grow, you may want to start editing it to add extra
+functionality to the backend.

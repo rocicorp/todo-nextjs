@@ -12,7 +12,7 @@ const MainSection = ({
   todos: Todo[];
   onUpdateTodo: (update: TodoUpdate) => void;
   onDeleteTodos: (ids: string[]) => void;
-  onCompleteTodos: (args: { completed: boolean; ids: string[] }) => void;
+  onCompleteTodos: (completed: boolean, ids: string[]) => void;
 }) => {
   const todosCount = todos.length;
   const completed = todos.filter((todo) => todo.completed);
@@ -36,10 +36,10 @@ const MainSection = ({
 
   const handleCompleteAll = () => {
     const completed = !toggleAllValue;
-    onCompleteTodos({
+    onCompleteTodos(
       completed,
-      ids: todos.map((todo) => todo.id),
-    });
+      todos.map((todo) => todo.id)
+    );
   };
 
   return (
