@@ -7,7 +7,12 @@ export async function handlePush<M extends MutatorDefs>(
   res: NextApiResponse,
   mutators: M
 ) {
-  const spaceID = req.query["spaceID"].toString();
+  if(req.query["spaceID"] === undefined) {
+    res.status(400).send("Missing spaceID");
+    return;
+  }
+  const spaceID = req.query["spaceID"].toString() as string;
   await push(spaceID, req.body, mutators);
+  
   res.status(200).json({});
 }

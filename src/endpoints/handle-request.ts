@@ -9,6 +9,10 @@ export async function handleRequest<M extends MutatorDefs>(
   res: NextApiResponse,
   mutators: M
 ) {
+  if(req.query === undefined) {
+    res.status(400).send("Missing query");
+    return;
+  }
   const op = req.query["op"] as string;
   console.log(`Handling request ${req.url}, op: ${op}`);
 
