@@ -7,14 +7,14 @@
     "build": "next build",
     "start": "next start",
     "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'replicache-nextjs/**/*.test.ts'"
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register '**/*.test.ts'"
   },
   "dependencies": {
-    "next": "^11.0.1",
-    "pg": "^8.7.3",
+    "next": "^12.1.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
+    "replicache-nextjs": "file:replicache-nextjs-0.1.0.tgz",
     "replicache-react": "^2.7.0"
   },
   "devDependencies": {
@@ -29,7 +29,6 @@
     "classnames": "^2.3.1",
     "mocha": "^9.2.1",
     "nanoid": "^3.3.1",
-    "pg-mem": "^2.5.0",
     "prettier": "^2.2.1",
     "todomvc-app-css": "^2.4.2",
     "ts-node": "^10.7.0",

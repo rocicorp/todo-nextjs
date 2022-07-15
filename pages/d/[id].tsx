@@ -2,8 +2,8 @@ import { GetServerSideProps } from "next";
 
 import App from "../../src/app";
 
-import { spaceExists } from "../../replicache-nextjs/api";
-import { useReplicache } from "../../replicache-nextjs/frontend/use-replicache";
+import { spaceExists } from "replicache-nextjs/out/backend";
+import { useReplicache } from "replicache-nextjs/out/frontend";
 import { mutators } from "../../src/mutators";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
