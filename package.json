@@ -56,19 +56,18 @@
   ],
   "exports": {
     "./out/backend": {
-      "import": "./out/backend/index.mjs",
-      "require": "./out/backend/index.js",
-      "types": "./out/backend/index.d.ts"
+      "types": "./out/backend/index.d.ts",
+      "import": "./out/backend/index.js"
+      
     },
     "./out/frontend": {
-      "import": "./out/frontend/index.mjs",
-      "require": "./out/frontend/index.js",
-      "types": "./out/frontend/index.d.ts"
+      "types": "./out/frontend/index.d.ts",
+      "import": "./out/frontend/index.js"
+
     },
     "./out/backend/supabase": {
-      "import": "./out/backend/supabase.mjs",
-      "require": "./out/backend/supabase.js",
-      "types": "./out/backend/supabase.d.ts"
+      "types": "./out/backend/supabase.d.ts",
+      "import": "./out/backend/supabase.js"
     }
   }
 }
