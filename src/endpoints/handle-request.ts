@@ -1,15 +1,15 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { MutatorDefs } from "replicache";
-import { handlePokeSSE } from "./replicache-poke-sse";
-import { handlePull } from "./replicache-pull";
-import { handlePush } from "./replicache-push";
+import type { NextApiRequest, NextApiResponse } from "next";
+import type { MutatorDefs } from "replicache";
+import { handlePokeSSE } from "./replicache-poke-sse.js";
+import { handlePull } from "./replicache-pull.js";
+import { handlePush } from "./replicache-push.js";
 
 export async function handleRequest<M extends MutatorDefs>(
   req: NextApiRequest,
   res: NextApiResponse,
   mutators: M
 ) {
-  if(req.query === undefined) {
+  if (req.query === undefined) {
     res.status(400).send("Missing query");
     return;
   }

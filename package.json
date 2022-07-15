@@ -9,10 +9,8 @@
     "format": "prettier --write 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "check-format": "prettier --check 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "lint": "eslint --ext .ts,.tsx,.js,.jsx src/",
-    "build-cjs": "tsc --module commonjs --outDir out",
-    "build-esm": "tsc --module ESNext --outDir out && mv out/frontend/index.js out/frontend/index.mjs && mv out/backend/index.js out/backend/index.mjs",
-    "build": "npm run build-esm && npm run build-cjs",
-    "prepack": "npm run lint && npm run test && npm run build",
+    "build": "rm -rf out && tsc",
+    "prepack": "npm run lint && npm run build",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'src/**/*.test.ts'"
   },
   "dependencies": {
@@ -50,6 +48,7 @@
     "@types/react-dom": "^18.0.5",
     "pg-mem": "^2.5.0"
   },
+  "type": "module",
   "files": [
     "out/*",
     "!out/*.test.*"
@@ -58,12 +57,10 @@
     "./out/backend": {
       "types": "./out/backend/index.d.ts",
       "import": "./out/backend/index.js"
-      
     },
     "./out/frontend": {
       "types": "./out/frontend/index.d.ts",
       "import": "./out/frontend/index.js"
-
     },
     "./out/backend/supabase": {
       "types": "./out/backend/supabase.d.ts",

@@ -1,9 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getCookie, createSpace as createSpaceImpl } from "../backend/data";
-import { handleRequest as handleRequestImpl } from "../endpoints/handle-request";
-import { transact } from "../backend/pg";
-import { MutatorDefs } from "replicache";
-
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getCookie, createSpace as createSpaceImpl } from "../backend/data.js";
+import { handleRequest as handleRequestImpl } from "../endpoints/handle-request.js";
+import { transact } from "../backend/pg.js";
+import type { MutatorDefs } from "replicache";
 
 export async function spaceExists(spaceID: string) {
   const cookie = await transact(async (executor) => {

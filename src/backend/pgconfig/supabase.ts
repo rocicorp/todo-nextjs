@@ -1,5 +1,5 @@
-import { SupabaseServerConfig } from "../supabase";
-import { PostgresDBConfig } from "./postgres";
+import type { SupabaseServerConfig } from "../supabase.js";
+import { PostgresDBConfig } from "./postgres.js";
 
 /**
  * Gets a PGConfig for Supabase. Supabase is postgres, just the way to get the

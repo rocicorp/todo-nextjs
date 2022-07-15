@@ -1,5 +1,5 @@
-import { Executor } from "../pg";
-import { PokeBackend } from "./poke";
+import type { Executor } from "../pg.js";
+import type { PokeBackend } from "./poke.js";
 
 // Implements the poke backend using Supabase's realtime features.
 export class SupabasePokeBackend implements PokeBackend {

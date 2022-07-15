@@ -1,15 +1,15 @@
-import { transact } from "./pg";
+import { transact } from "./pg.js";
 import {
   getCookie,
   getLastMutationID,
   setCookie,
   setLastMutationID,
-} from "./data";
-import { ReplicacheTransaction } from "./replicache-transaction";
+} from "./data.js";
+import { ReplicacheTransaction } from "./replicache-transaction.js";
 import { z } from "zod";
 import { parseIfDebug } from "@rocicorp/rails";
-import { getPokeBackend } from "./poke/poke";
-import { MutatorDefs } from "replicache";
+import { getPokeBackend } from "./poke/poke.js";
+import type { MutatorDefs } from "replicache";
 
 const mutationSchema = z.object({
   id: z.number(),

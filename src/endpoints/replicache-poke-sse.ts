@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getPokeBackend } from "../backend/poke/poke";
-import { SSEPokeBackend } from "../backend/poke/sse";
+import { getPokeBackend } from "../backend/poke/poke.js";
+import type { SSEPokeBackend } from "../backend/poke/sse.js";
 
 export async function handlePokeSSE(req: NextApiRequest, res: NextApiResponse) {
-  if(req.query["spaceID"] === undefined) {
+  if (req.query["spaceID"] === undefined) {
     res.status(400).send("Missing spaceID");
     return;
   }

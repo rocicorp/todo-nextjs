@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MutatorDefs, Replicache } from "replicache";
-import { getPokeReceiver } from "./poke";
+import { getPokeReceiver } from "./poke.js";
 
 export function useReplicache<M extends MutatorDefs>(
   spaceID: string,

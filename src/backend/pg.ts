@@ -1,8 +1,8 @@
 // Low-level config and utilities for Postgres.
 
-import { Pool, QueryResult } from "pg";
-import { createDatabase } from "./schema";
-import { getDBConfig } from "./pgconfig/pgconfig";
+import type { Pool, QueryResult } from "pg";
+import { createDatabase } from "./schema.js";
+import { getDBConfig } from "./pgconfig/pgconfig.js";
 
 const pool = getPool();
 

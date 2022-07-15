@@ -1,15 +1,13 @@
-import { JSONValue } from "replicache";
+import type { JSONValue } from "replicache";
 import { z } from "zod";
-import { Executor } from "./pg";
+import type { Executor } from "./pg.js";
 
 export async function getEntry(
   executor: Executor,
   spaceid: string,
   key: string
 ): Promise<JSONValue | undefined> {
-  const {
-    rows,
-  } = await executor(
+  const { rows } = await executor(
     "select value from entry where spaceid = $1 and key = $2 and deleted = false",
     [spaceid, key]
   );
@@ -55,9 +53,7 @@ export async function* getEntries(
   spaceID: string,
   fromKey: string
 ): AsyncIterable<readonly [string, JSONValue]> {
-  const {
-    rows,
-  } = await executor(
+  const { rows } = await executor(
     `select key, value from entry where spaceid = $1 and key >= $2 and deleted = false order by key`,
     [spaceID, fromKey]
   );
@@ -71,9 +67,7 @@ export async function getChangedEntries(
   spaceID: string,
   prevVersion: number
 ): Promise<[key: string, value: JSONValue, deleted: boolean][]> {
-  const {
-    rows,
-  } = await executor(
+  const { rows } = await executor(
     `select key, value, deleted from entry where spaceid = $1 and version > $2`,
     [spaceID, prevVersion]
   );
@@ -120,11 +114,10 @@ export async function getLastMutationID(
   executor: Executor,
   clientID: string
 ): Promise<number | undefined> {
-  const {
-    rows,
-  } = await executor(`select lastmutationid from client where id = $1`, [
-    clientID,
-  ]);
+  const { rows } = await executor(
+    `select lastmutationid from client where id = $1`,
+    [clientID]
+  );
   const value = rows[0]?.lastmutationid;
   if (value === undefined) {
     return undefined;

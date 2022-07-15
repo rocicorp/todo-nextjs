@@ -1,8 +1,8 @@
 import type { NextApiRequest } from "next";
-import { transact } from "./pg";
-import { getChangedEntries, getCookie, getLastMutationID } from "./data";
+import { transact } from "./pg.js";
+import { getChangedEntries, getCookie, getLastMutationID } from "./data.js";
 import { z } from "zod";
-import { PullResponse } from "replicache";
+import type { PullResponse } from "replicache";
 
 const pullRequest = z.object({
   clientID: z.string(),

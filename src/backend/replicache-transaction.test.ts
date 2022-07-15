@@ -1,9 +1,9 @@
-import { ReplicacheTransaction } from "./replicache-transaction";
+import { ReplicacheTransaction } from "./replicache-transaction.js";
 import { expect } from "chai";
 import { test } from "mocha";
-import { withExecutor } from "./pg";
-import { getEntry, putEntry } from "./data";
-import { ScanOptions } from "replicache";
+import { withExecutor } from "./pg.js";
+import { getEntry, putEntry } from "./data.js";
+import type { ScanOptions } from "replicache";
 
 test("ReplicacheTransaction", async () => {
   await withExecutor(async (executor) => {
