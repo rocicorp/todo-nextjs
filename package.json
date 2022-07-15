@@ -4,26 +4,31 @@
   "description": "Generic Replicache backend on Next.js",
   "homepage": "https://github.com/rocicorp/replicache-nextjs",
   "repository": "github:rocicorp/replicache-nextjs",
-  "main": "out/index.js",
   "license": "Apache-2.0",
   "scripts": {
     "format": "prettier --write 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "check-format": "prettier --check 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "lint": "eslint --ext .ts,.tsx,.js,.jsx src/",
     "build-cjs": "tsc --module commonjs --outDir out",
-    "build-esm": "tsc --module ESNext --outDir out && mv out/index.js out/index.mjs",
+    "build-esm": "tsc --module ESNext --outDir out && mv out/frontend/index.js out/frontend/index.mjs && mv out/backend/index.js out/backend/index.mjs",
     "build": "npm run build-esm && npm run build-cjs",
     "prepack": "npm run lint && npm run test && npm run build",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'src/**/*.test.ts'"
   },
- 
-  "peerDependencies": {
-    "next": "^12.1.6",
+  "dependencies": {
     "pg": "^8.7.3",
-    "pg-mem": "^2.5.0",
+    "@supabase/supabase-js": "^1.35.3",
+    "@rocicorp/logger": "^2.2.0",
+    "@rocicorp/rails": "^0.2.1",
+    "next": "^12.1.6",
+    "react": "17.0.2"
+  },
+  "peerDependencies": {
     "react": "17.0.2",
+    "next": "^12.1.6",
     "react-dom": "17.0.2",
-    "replicache": "^11.0.0"
+    "replicache": "^11.0.0",
+    "pg-mem": "^2.5.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
@@ -43,15 +48,27 @@
     "@types/pg": "^8.6.4",
     "@types/react": "^17.0.11",
     "@types/react-dom": "^18.0.5",
-    "@supabase/supabase-js": "^1.35.3",
-    "@rocicorp/logger": "^2.2.0",
-    "@rocicorp/rails": "^0.2.1"
+    "pg-mem": "^2.5.0"
   },
   "files": [
-    "out/index.js",
-    "out/index.mjs",
-    "out/index.d.ts",
-    "out/frontend/index.js",
-    "out/frontend/index.d.ts"
-  ]
+    "out/*",
+    "!out/*.test.*"
+  ],
+  "exports": {
+    "./out/backend": {
+      "import": "./out/backend/index.mjs",
+      "require": "./out/backend/index.js",
+      "types": "./out/backend/index.d.ts"
+    },
+    "./out/frontend": {
+      "import": "./out/frontend/index.mjs",
+      "require": "./out/frontend/index.js",
+      "types": "./out/frontend/index.d.ts"
+    },
+    "./out/backend/supabase": {
+      "import": "./out/backend/supabase.mjs",
+      "require": "./out/backend/supabase.js",
+      "types": "./out/backend/supabase.d.ts"
+    }
+  }
 }

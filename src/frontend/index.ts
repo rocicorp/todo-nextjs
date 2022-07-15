@@ -1,7 +1,2 @@
-import {getPokeReceiver} from "./poke";
-import {useReplicache} from "./use-replicache";
-
-export default {
-    getPokeReceiver,
-    useReplicache,
-}
+export { getPokeReceiver } from "./poke";
+export * from "./use-replicache";
