@@ -1,6 +1,6 @@
 {
-  "name": "nextjs",
-  "version": "0.1.0",
+  "name": "replicache-todo",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,7 +13,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
-    "replicache-nextjs": "^0.1.0",
+    "replicache-nextjs": "^0.1.1",
     "replicache-react": "^2.7.0"
   },
   "devDependencies": {
