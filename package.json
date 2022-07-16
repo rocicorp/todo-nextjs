@@ -6,15 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register '**/*.test.ts'"
+    "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'"
   },
   "dependencies": {
     "next": "^12.1.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
-    "replicache-nextjs": "file:replicache-nextjs-0.1.0.tgz",
+    "replicache-nextjs": "^0.1.0",
     "replicache-react": "^2.7.0"
   },
   "devDependencies": {
