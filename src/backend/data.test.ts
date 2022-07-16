@@ -9,7 +9,7 @@ import {
   getEntry,
   putEntry,
   setCookie,
-} from "./data";
+} from "./data.js";
 import { withExecutor } from "./pg.js";
 
 test("getEntry", async () => {
