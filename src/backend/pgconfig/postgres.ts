@@ -1,6 +1,6 @@
-import { Pool } from "pg";
-import { Executor } from "../pg";
-import { PGConfig } from "./pgconfig";
+import pg from "pg";
+import type { Executor } from "../pg.js";
+import type { PGConfig } from "./pgconfig.js";
 
 /**
  * Implements PGConfig over a basic Postgres connection.
@@ -13,14 +13,14 @@ export class PostgresDBConfig implements PGConfig {
     this._url = url;
   }
 
-  initPool(): Pool {
+  initPool(): pg.Pool {
     const ssl =
       process.env.NODE_ENV === "production"
         ? {
             rejectUnauthorized: false,
           }
         : undefined;
-    return new Pool({
+    return new pg.Pool({
       connectionString: this._url,
       ssl,
     });

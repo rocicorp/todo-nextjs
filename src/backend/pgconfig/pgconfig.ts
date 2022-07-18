@@ -1,9 +1,9 @@
-import { Pool } from "pg";
-import { Executor } from "../pg";
-import { getSupabaseServerConfig } from "../supabase";
-import { PGMemConfig } from "./pgmem";
-import { PostgresDBConfig } from "./postgres";
-import { supabaseDBConfig } from "./supabase";
+import type { Pool } from "pg";
+import type { Executor } from "../pg.js";
+import { getSupabaseServerConfig } from "../supabase.js";
+import { PGMemConfig } from "./pgmem.js";
+import { PostgresDBConfig } from "./postgres.js";
+import { supabaseDBConfig } from "./supabase.js";
 
 /**
  * We use Postgres in a few different ways: directly, via supabase,

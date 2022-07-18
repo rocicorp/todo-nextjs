@@ -1,4 +1,4 @@
-import { PokeBackend } from "./poke";
+import type { PokeBackend } from "./poke.js";
 
 type Listener = () => void;
 type ListenerMap = Map<string, Set<Listener>>;

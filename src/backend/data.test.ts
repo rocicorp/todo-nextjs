@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { test } from "mocha";
-import { JSONValue } from "replicache";
+import type { JSONValue } from "replicache";
 import {
   createSpace,
   delEntry,
@@ -9,8 +9,8 @@ import {
   getEntry,
   putEntry,
   setCookie,
-} from "./data";
-import { withExecutor } from "./pg";
+} from "./data.js";
+import { withExecutor } from "./pg.js";
 
 test("getEntry", async () => {
   type Case = {

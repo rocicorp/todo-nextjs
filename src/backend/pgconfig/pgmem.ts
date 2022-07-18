@@ -1,6 +1,6 @@
-import { Pool } from "pg";
+import type { Pool } from "pg";
 import { newDb } from "pg-mem";
-import { PGConfig } from "./pgconfig";
+import type { PGConfig } from "./pgconfig.js";
 
 export class PGMemConfig implements PGConfig {
   constructor() {

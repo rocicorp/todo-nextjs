@@ -1,7 +1,7 @@
-import { Executor } from "../pg";
-import { getSupabaseServerConfig } from "../supabase";
-import { SSEPokeBackend } from "./sse";
-import { SupabasePokeBackend } from "./supabase";
+import type { Executor } from "../pg.js";
+import { getSupabaseServerConfig } from "../supabase.js";
+import { SSEPokeBackend } from "./sse.js";
+import { SupabasePokeBackend } from "./supabase.js";
 
 export interface PokeBackend {
   initSchema(executor: Executor): Promise<void>;

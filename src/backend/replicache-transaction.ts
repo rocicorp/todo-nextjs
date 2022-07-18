@@ -8,8 +8,8 @@ import {
   mergeAsyncIterables,
   filterAsyncIterable,
 } from "replicache";
-import { delEntry, getEntries, getEntry, putEntry } from "./data";
-import { Executor } from "./pg";
+import { delEntry, getEntries, getEntry, putEntry } from "./data.js";
+import type { Executor } from "./pg.js";
 
 type CacheMap = Map<string, { value: JSONValue | undefined; dirty: boolean }>;
 

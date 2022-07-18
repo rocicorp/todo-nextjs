@@ -1,7 +1,7 @@
 import {
   getSupabaseClientConfig,
   SupabaseClientConfig,
-} from "../backend/supabase";
+} from "../backend/supabase.js";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseClientConfig = getSupabaseClientConfig();
@@ -25,6 +25,10 @@ function supabaseReceiver(
   spaceID: string,
   onPoke: () => Promise<void>
 ) {
+  if (!supabaseClientConfig) {
+    console.log("supabaseClientConfig is undefined");
+    return;
+  }
   const { url, key } = supabaseClientConfig;
   const supabase = createClient(url, key);
   supabase

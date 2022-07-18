@@ -1,9 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getPokeBackend } from "../backend/poke/poke";
-import { SSEPokeBackend } from "../backend/poke/sse";
+import { getPokeBackend } from "../backend/poke/poke.js";
+import type { SSEPokeBackend } from "../backend/poke/sse.js";
 
 export async function handlePokeSSE(req: NextApiRequest, res: NextApiResponse) {
-  const spaceID = req.query["spaceID"].toString();
+  if (req.query["spaceID"] === undefined) {
+    res.status(400).send("Missing spaceID");
+    return;
+  }
+  const spaceID = req.query["spaceID"].toString() as string;
 
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream;charset=utf-8");

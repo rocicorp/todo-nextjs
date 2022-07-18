@@ -1,6 +1,6 @@
-import { PGConfig } from "./pgconfig/pgconfig";
-import { Executor } from "./pg";
-import { getPokeBackend } from "./poke/poke";
+import type { PGConfig } from "./pgconfig/pgconfig.js";
+import type { Executor } from "./pg.js";
+import { getPokeBackend } from "./poke/poke.js";
 
 export async function createDatabase(executor: Executor, dbConfig: PGConfig) {
   console.log("creating database");
