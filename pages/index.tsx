@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { GetServerSideProps } from "next";
-import { createSpace } from "../replicache-nextjs/api";
+import { createSpace } from "replicache-nextjs/lib/backend";
 
 function Page() {
   return "";
