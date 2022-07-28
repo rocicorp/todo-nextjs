@@ -1,12 +1,12 @@
 {
   "name": "replicache-nextjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generic Replicache backend on Next.js",
   "homepage": "https://github.com/rocicorp/replicache-nextjs",
   "repository": "github:rocicorp/replicache-nextjs",
   "license": "Apache-2.0",
   "scripts": {
-    "format": "prettier --write 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
+    "format": "prettier --write 'src/*/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "check-format": "prettier --check 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "lint": "eslint --ext .ts,.tsx,.js,.jsx src/",
     "build": "rm -rf out && tsc",
@@ -14,39 +14,38 @@
     "pretest": "npm run build",
     "test": "mocha --ui=tdd 'out/**/*.test.js'"
   },
-
   "peerDependencies": {
-    "react": ">=16.0 <18.0",
     "next": ">=12.1.6",
+    "react": ">=16.0 <18.0",
     "react-dom": ">=16.0 <18.0",
     "replicache": ">=11.0.0",
     "pg-mem": ">=2.5.0"
   },
   "devDependencies": {
+    "@rocicorp/logger": "^2.2.0",
+    "@rocicorp/rails": "^0.2.1",
+    "@supabase/supabase-js": "^1.35.3",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.3.1",
-    "@typescript-eslint/parser": "^5.18.0",
-    "chai": "^4.3.6",
-    "mocha": "^9.2.1",
-    "prettier": "^2.2.1",
-    "nanoid": "^3.3.1",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.1.5",
-    "zod": "^3.17.3",
-    "classnames": "^2.3.1",
-    "eslint": "^8.2.0",
     "@types/node": "^14.14.37",
     "@types/pg": "^8.6.4",
     "@types/react": "^17.0.11",
     "@types/react-dom": "^18.0.5",
-    "pg-mem": "^2.5.0",
-    "pg": "^8.7.3",
-    "@supabase/supabase-js": "^1.35.3",
-    "@rocicorp/logger": "^2.2.0",
-    "@rocicorp/rails": "^0.2.1",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.18.0",
+    "chai": "^4.3.6",
+    "classnames": "^2.3.1",
+    "eslint": "^8.2.0",
+    "mocha": "^9.2.1",
+    "nanoid": "^3.3.1",
     "next": "^12.1.6",
-    "react": "17.0.2"
+    "pg": "^8.7.3",
+    "pg-mem": "^2.5.0",
+    "prettier": "^2.2.1",
+    "react": "17.0.2",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.7.4",
+    "zod": "^3.17.3"
   },
   "type": "module",
   "files": [
@@ -55,16 +54,16 @@
   ],
   "exports": {
     "./out/backend": {
-      "types": "./out/backend/index.d.ts",
-      "import": "./out/backend/index.js"
+      "import": {
+        "types": "./out/backend/index.d.ts",
+        "default": "./out/backend/index.js"
+      }
     },
     "./out/frontend": {
-      "types": "./out/frontend/index.d.ts",
-      "import": "./out/frontend/index.js"
-    },
-    "./out/backend/supabase": {
-      "types": "./out/backend/supabase.d.ts",
-      "import": "./out/backend/supabase.js"
+      "import": {
+        "types": "./out/frontend/index.d.ts",
+        "default": "./out/frontend/index.js"
+      }
     }
   }
 }
