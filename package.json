@@ -1,6 +1,6 @@
 {
   "name": "replicache-nextjs",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Generic Replicache backend on Next.js",
   "homepage": "https://github.com/rocicorp/replicache-nextjs",
   "repository": "github:rocicorp/replicache-nextjs",
@@ -9,10 +9,10 @@
     "format": "prettier --write 'src/*/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "check-format": "prettier --check 'src/*.{js,jsx,json,ts,tsx,html,css,md}' '*.{cjs,js,jsx,json,ts,tsx,html,css,md}'",
     "lint": "eslint --ext .ts,.tsx,.js,.jsx src/",
-    "build": "rm -rf out && tsc",
+    "build": "rm -rf lib && tsc",
     "prepack": "npm run lint && npm run build",
     "pretest": "npm run build",
-    "test": "mocha --ui=tdd 'out/**/*.test.js'"
+    "test": "mocha --ui=tdd 'lib/**/*.test.js'"
   },
   "peerDependencies": {
     "next": ">=12.1.6",
@@ -50,20 +50,20 @@
   },
   "type": "module",
   "files": [
-    "out/*",
-    "!out/*.test.*"
+    "lib/*",
+    "!lib/*.test.*"
   ],
   "exports": {
-    "./out/backend": {
+    "./lib/backend": {
       "import": {
-        "types": "./out/backend/index.d.ts",
-        "default": "./out/backend/index.js"
+        "types": "./lib/backend/index.d.ts",
+        "default": "./lib/backend/index.js"
       }
     },
-    "./out/frontend": {
+    "./lib/frontend": {
       "import": {
-        "types": "./out/frontend/index.d.ts",
-        "default": "./out/frontend/index.js"
+        "types": "./lib/frontend/index.d.ts",
+        "default": "./lib/frontend/index.js"
       }
     }
   }
