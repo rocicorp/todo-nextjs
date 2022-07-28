@@ -6,19 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'"
+    "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'",
+    "tsc-version": "tsc --version"
   },
   "dependencies": {
     "next": "^12.1.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
-    "replicache-nextjs": "^0.1.1",
+    "replicache-nextjs": "^0.1.3",
     "replicache-react": "^2.7.0"
   },
   "devDependencies": {
     "@rocicorp/rails": "^0.2.1",
-    "@supabase/supabase-js": "^1.35.3",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^14.14.37",
@@ -31,7 +31,7 @@
     "prettier": "^2.2.1",
     "todomvc-app-css": "^2.4.2",
     "ts-node": "^10.7.0",
-    "typescript": "^4.1.5",
+    "typescript": "^4.7.4",
     "zod": "^3.13.4"
   },
   "eslintConfig": {
