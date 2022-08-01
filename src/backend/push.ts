@@ -6,10 +6,9 @@ import {
   setLastMutationID,
 } from "./data.js";
 import { ReplicacheTransaction } from "./replicache-transaction.js";
-import { z } from "zod";
-import { parseIfDebug } from "@rocicorp/rails";
+import { z, ZodType } from "zod";
 import { getPokeBackend } from "./poke/poke.js";
-import type { MutatorDefs } from "replicache";
+import type { MutatorDefs, ReadonlyJSONValue } from "replicache";
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -21,6 +20,13 @@ const pushRequestSchema = z.object({
   clientID: z.string(),
   mutations: z.array(mutationSchema),
 });
+
+export function parseIfDebug<T>(schema: ZodType<T>, val: ReadonlyJSONValue): T {
+  if (globalThis.process?.env?.NODE_ENV !== "production") {
+    return schema.parse(val);
+  }
+  return val as T;
+}
 
 export type Error = "SpaceNotFound";
 
