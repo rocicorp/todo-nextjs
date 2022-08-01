@@ -13,14 +13,13 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
-    "replicache-nextjs": "^0.1.4",
+    "replicache-nextjs": "^0.1.5",
     "replicache-react": "^2.7.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^14.14.37",
-    "@types/pg": "^8.6.4",
     "@types/react": "^17.0.11",
     "chai": "^4.3.6",
     "classnames": "^2.3.1",
