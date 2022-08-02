@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 import React from "react";
+import { Replicache } from "replicache";
 import { useSubscribe } from "replicache-react";
 
 import { M } from "./mutators";
@@ -7,7 +8,7 @@ import { listTodos, TodoUpdate } from "./todo";
 
 import Header from "./components/header";
 import MainSection from "./components/main-section";
-import { Replicache } from "replicache";
+import "todomvc-app-css/index.css";
 
 // This is the top-level component for our app.
 const App = ({ rep }: { rep: Replicache<M> }) => {
@@ -28,7 +29,7 @@ const App = ({ rep }: { rep: Replicache<M> }) => {
   const handleUpdateTodo = (update: TodoUpdate) =>
     rep.mutate.updateTodo(update);
 
-  const handleDeleteTodos = async (ids: string[]) => {
+  const handleDeleteTodos = (ids: string[]) => {
     for (const id of ids) {
       rep.mutate.deleteTodo(id);
     }

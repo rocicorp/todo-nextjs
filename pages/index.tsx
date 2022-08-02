@@ -6,9 +6,13 @@ function Page() {
   return "";
 }
 
-// This is the entrypoint for the application. We randomly select a new "space"
-// to store todos in and create it server-side, then redirect the user to
-// /d/<spaceid>, which actually loads the app.
+// This is the entrypoint for the application.
+//
+// Next.js runs this function server-side (see:
+// https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props).
+//
+// We randomly select a new "space" to store todos in and create it server-side,
+// then redirect the user to /d/<spaceid>, which actually loads the app.
 //
 // Spaces are not part of the Replicache protocol officially, but they are a
 // common pattern for Replicache apps. Because server-side data a user has
@@ -21,9 +25,9 @@ function Page() {
 // In a real todo application, there'd likely only be need for one space, since
 // a user is not going to ever have enough todos to have to partition at all.
 // But in a sophisticated project management application, each project would
-// likely be one space.
+// often be one space.
 //
-// All our demo apps use spaces for a different reason: each navigation to the
+// This demo apps use spaces for a different reason: each navigation to the
 // demo app gets its own space so that different demoers aren't confused by
 // seeing other demoers making changes.
 export const getServerSideProps: GetServerSideProps = async () => {

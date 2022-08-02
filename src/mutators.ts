@@ -18,7 +18,7 @@
 //
 // If the server is written in JavaScript, the mutator functions can be directly
 // reused on the server. This sample demonstrates the pattern by using these
-// mutators both with Replicache on the client (see app.tsx) and on the server
+// mutators both with Replicache on the client (see [id]].tsx) and on the server
 // (see pages/api/replicache/[op].ts).
 //
 // See https://doc.replicache.dev/how-it-works#sync-details for all the detail
