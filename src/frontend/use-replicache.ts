@@ -12,7 +12,7 @@ export function useReplicache<M extends MutatorDefs>(
   // here is a common hack to prevent next from running the code server-side.
   useEffect(() => {
     (async () => {
-      if (rep) {
+      if (!spaceID || rep) {
         return;
       }
 
@@ -45,7 +45,7 @@ export function useReplicache<M extends MutatorDefs>(
     })().catch((e) => console.error(e));
   }, [spaceID, mutators]);
 
-  if (!rep) {
+  if (!spaceID || !rep) {
     return null;
   }
 
