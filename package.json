@@ -9,14 +9,14 @@
     "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'"
   },
   "dependencies": {
+    "classnames": "^2.3.1",
     "next": "^12.1.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
-    "replicache-nextjs": "^0.1.5",
+    "replicache-nextjs": "^0.2.0",
     "replicache-react": "^2.7.0",
-    "todomvc-app-css": "^2.4.2",
-    "classnames": "^2.3.1"
+    "todomvc-app-css": "^2.4.2"
   },
   "devDependencies": {
     "@types/node": "^14.14.37",
