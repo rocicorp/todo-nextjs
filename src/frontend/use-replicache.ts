@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { MutatorDefs, Replicache } from "replicache";
 import { getPokeReceiver } from "./poke.js";
 
+/**
+ * Returns a Replicache instance with the given configuration.
+ * If spaceID is falsey, returns null.
+ */
 export function useReplicache<M extends MutatorDefs>(
   spaceID: string | null | undefined,
   mutators: M
