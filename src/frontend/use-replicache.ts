@@ -3,7 +3,7 @@ import { MutatorDefs, Replicache } from "replicache";
 import { getPokeReceiver } from "./poke.js";
 
 export function useReplicache<M extends MutatorDefs>(
-  spaceID: string,
+  spaceID: string | null | undefined,
   mutators: M
 ) {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
@@ -45,7 +45,7 @@ export function useReplicache<M extends MutatorDefs>(
     })().catch((e) => console.error(e));
   }, [spaceID, mutators]);
 
-  if (!spaceID || !rep) {
+  if (!rep) {
     return null;
   }
 
