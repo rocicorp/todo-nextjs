@@ -45,7 +45,7 @@ export function useReplicache<M extends MutatorDefs>(
     })().catch((e) => console.error(e));
   }, [spaceID, mutators]);
 
-  if (!spaceID || !rep) {
+  if (!rep) {
     return null;
   }
 
