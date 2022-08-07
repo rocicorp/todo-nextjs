@@ -59,8 +59,14 @@ function sseReceiver(spaceID: string, onPoke: () => Promise<void>) {
       await onPoke();
     }
   };
-  return () => {
+  const close = () => {
     console.log("Canceling sseReceiver");
     ev.close();
+  };
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=833462
+  window.addEventListener("beforeunload", close);
+  return () => {
+    close();
+    window.removeEventListener("beforeunload", close);
   };
 }
