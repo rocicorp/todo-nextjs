@@ -6,14 +6,16 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseClientConfig = getSupabaseClientConfig();
 
+export type Receiver = (spaceID: string, onPoke: OnPoke) => Cancel;
+export type OnPoke = () => Promise<void>;
+export type Cancel = () => void;
+
 // Returns a function that can be used to listen for pokes from the backend.
 // This sample supports two different ways to do it.
-export function getPokeReceiver() {
+export function getPokeReceiver(): Receiver {
   if (supabaseClientConfig) {
-    console.log("Creating supabaseReceiver");
     return supabaseReceiver.bind(null, supabaseClientConfig);
   } else {
-    console.log("Creating sseReceiver");
     return sseReceiver;
   }
 }
@@ -25,23 +27,30 @@ function supabaseReceiver(
   spaceID: string,
   onPoke: () => Promise<void>
 ) {
+  console.log("Creating supabaseReceiver");
   if (!supabaseClientConfig) {
     console.log("supabaseClientConfig is undefined");
-    return;
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    return () => {};
   }
   const { url, key } = supabaseClientConfig;
   const supabase = createClient(url, key);
-  supabase
+  const subscription = supabase
     .from(`space:id=eq.${spaceID}`)
     .on("*", async () => {
       await onPoke();
     })
     .subscribe();
+  return () => {
+    console.log("Canceling supabaseReceiver");
+    subscription.unsubscribe();
+  };
 }
 
 // Implements a Replicache poke using Server-Sent Events.
 // See: backend/poke/sse.ts.
 function sseReceiver(spaceID: string, onPoke: () => Promise<void>) {
+  console.log("Creating sseReceiver");
   const ev = new EventSource(`/api/replicache/poke-sse?spaceID=${spaceID}`, {
     withCredentials: true,
   });
@@ -49,5 +58,9 @@ function sseReceiver(spaceID: string, onPoke: () => Promise<void>) {
     if (event.data === "poke") {
       await onPoke();
     }
+  };
+  return () => {
+    console.log("Canceling sseReceiver");
+    ev.close();
   };
 }
