@@ -1,2 +1,1 @@
-export { getPokeReceiver } from "./poke.js";
-export * from "./use-replicache.js";
+export { useReplicache } from "./use-replicache.js";
