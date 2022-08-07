@@ -10,6 +10,10 @@ export interface UseReplicacheOptions<M extends MutatorDefs>
 /**
  * Returns a Replicache instance with the given configuration.
  * If name is undefined, returns null.
+ * If any of the values of the options change (by way of JS equals), a new
+ * Replicache instance is created and the old one is closed.
+ * Thus it is fine to say `useReplicache({name, mutators})`, as long as name
+ * and mutators are stable.
  */
 export function useReplicache<M extends MutatorDefs>({
   name,
@@ -18,8 +22,10 @@ export function useReplicache<M extends MutatorDefs>({
   const [rep, setRep] = useState<Replicache<M> | null>(null);
 
   useEffect(() => {
-    if (!name || rep) {
-      return;
+    if (!name) {
+      setRep(null);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return () => {};
     }
 
     const r = new Replicache({
@@ -49,7 +55,7 @@ export function useReplicache<M extends MutatorDefs>({
       cancelReceiver();
       void r.close();
     };
-  }, [name]);
+  }, [name, ...Object.values(options)]);
 
   if (!rep) {
     return null;
