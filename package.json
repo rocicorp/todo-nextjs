@@ -8,6 +8,10 @@
     "start": "next start",
     "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'"
   },
+  "engines": {
+    "//": "replicache-nextjs requires npm >= 7. This was released in Node 15, but 16 is current stable so we choose that. Render looks at package.json to determine which Node to use: https://render.com/docs/node-version.",
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "classnames": "^2.3.1",
     "next": "^12.1.6",
