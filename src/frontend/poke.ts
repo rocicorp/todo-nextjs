@@ -27,9 +27,7 @@ function supabaseReceiver(
   spaceID: string,
   onPoke: () => Promise<void>
 ) {
-  console.log("Creating supabaseReceiver");
   if (!supabaseClientConfig) {
-    console.log("supabaseClientConfig is undefined");
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     return () => {};
   }
@@ -42,7 +40,6 @@ function supabaseReceiver(
     })
     .subscribe();
   return () => {
-    console.log("Canceling supabaseReceiver");
     subscription.unsubscribe();
   };
 }
@@ -50,7 +47,6 @@ function supabaseReceiver(
 // Implements a Replicache poke using Server-Sent Events.
 // See: backend/poke/sse.ts.
 function sseReceiver(spaceID: string, onPoke: () => Promise<void>) {
-  console.log("Creating sseReceiver");
   const ev = new EventSource(`/api/replicache/poke-sse?spaceID=${spaceID}`, {
     withCredentials: true,
   });
@@ -59,8 +55,13 @@ function sseReceiver(spaceID: string, onPoke: () => Promise<void>) {
       await onPoke();
     }
   };
-  return () => {
-    console.log("Canceling sseReceiver");
+  const close = () => {
     ev.close();
+  };
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=833462
+  window.addEventListener("beforeunload", close);
+  return () => {
+    close();
+    window.removeEventListener("beforeunload", close);
   };
 }
