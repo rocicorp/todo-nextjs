@@ -1,32 +1,41 @@
 import { useEffect, useState } from "react";
-import { MutatorDefs, Replicache } from "replicache";
+import { MutatorDefs, Replicache, ReplicacheOptions } from "replicache";
 import { getPokeReceiver } from "./poke.js";
+
+export interface UseReplicacheOptions<M extends MutatorDefs>
+  extends Omit<ReplicacheOptions<M>, "licenseKey" | "name"> {
+  name?: string;
+}
 
 /**
  * Returns a Replicache instance with the given configuration.
- * If spaceID is falsey, returns null.
+ * If name is undefined, returns null.
+ * If any of the values of the options change (by way of JS equals), a new
+ * Replicache instance is created and the old one is closed.
+ * Thus it is fine to say `useReplicache({name, mutators})`, as long as name
+ * and mutators are stable.
  */
-export function useReplicache<M extends MutatorDefs>(
-  spaceID: string | null | undefined,
-  mutators: M
-) {
+export function useReplicache<M extends MutatorDefs>({
+  name,
+  ...options
+}: UseReplicacheOptions<M>) {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
 
-  // Currently Replicache is only supported on the client-side. The useEffect()
-  // here is a common hack to prevent next from running the code server-side.
   useEffect(() => {
-    if (!spaceID || rep) {
-      return;
+    if (!name) {
+      setRep(null);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return () => {};
     }
 
     const r = new Replicache({
       // See https://doc.replicache.dev/licensing for how to get a license key.
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       licenseKey: process.env.NEXT_PUBLIC_REPLICACHE_LICENSE_KEY!,
-      pushURL: `/api/replicache/push?spaceID=${spaceID}`,
-      pullURL: `/api/replicache/pull?spaceID=${spaceID}`,
-      name: spaceID,
-      mutators,
+      pushURL: `/api/replicache/push?spaceID=${name}`,
+      pullURL: `/api/replicache/pull?spaceID=${name}`,
+      name,
+      ...options,
     });
 
     // Replicache uses an empty "poke" message sent over some pubsub channel
@@ -39,18 +48,14 @@ export function useReplicache<M extends MutatorDefs>(
     // - https://doc.replicache.dev/how-it-works#poke-optional
     // - https://github.com/supabase/realtime
     // - https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-    const pokeReceiver = getPokeReceiver();
-    const cancelReceiver = pokeReceiver(spaceID, async () => {
-      await r.pull();
-    });
-
+    const cancelReceiver = getPokeReceiver()(name, async () => r.pull());
     setRep(r);
 
     return () => {
       cancelReceiver();
       void r.close();
     };
-  }, [spaceID, mutators]);
+  }, [name, ...Object.values(options)]);
 
   if (!rep) {
     return null;
