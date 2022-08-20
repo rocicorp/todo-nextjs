@@ -8,8 +8,8 @@ import { mutators } from "../../src/mutators";
 
 // Next.js runs this server-side.
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const {params} = context;
-  const {id: listID} = params as {id: string};
+  const { params } = context;
+  const { id: listID } = params as { id: string };
 
   // Ensure the selected space exists. It's common during development for
   // developers to delete the backend database. As a convenience, we
@@ -34,7 +34,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 // Runs client-side.
 export default function Home({ listID }: { listID: string }) {
   // Load the space "listID"
-  const rep = useReplicache(listID, mutators);
+  const name = listID;
+  const rep = useReplicache({ name, mutators });
   if (!rep) {
     return null;
   }

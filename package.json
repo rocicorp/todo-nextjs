@@ -18,7 +18,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replicache": "^11.0.0",
-    "replicache-nextjs": "^0.2.2",
+    "replicache-nextjs": "^0.4.0",
     "replicache-react": "^2.9.0",
     "todomvc-app-css": "^2.4.2"
   },
