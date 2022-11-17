@@ -5,10 +5,10 @@
 import { ReadTransaction } from "replicache";
 
 export type Todo = {
-  id: string;
-  text: string;
-  completed: boolean;
-  sort: number;
+  readonly id: string;
+  readonly text: string;
+  readonly completed: boolean;
+  readonly sort: number;
 };
 
 export type TodoUpdate = Partial<Todo> & Pick<Todo, "id">;
