@@ -12,3 +12,5 @@
 **/supabase/.branches
 **/supabase/.temp
 .env
+tsconfig.tsbuildinfo
+.env.development.local
