@@ -5,10 +5,11 @@ import {
   setCookie,
   setLastMutationID,
 } from "./data.js";
-import { ReplicacheTransaction } from "./replicache-transaction.js";
+import { ReplicacheTransaction } from "replicache-transaction";
 import { z, ZodType } from "zod";
 import { getPokeBackend } from "./poke/poke.js";
 import type { MutatorDefs, ReadonlyJSONValue } from "replicache";
+import { PostgresStorage } from "./postgres-storage.js";
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -54,12 +55,8 @@ export async function push<M extends MutatorDefs>(
     console.log("prevVersion: ", prevVersion);
     console.log("lastMutationID:", lastMutationID);
 
-    const tx = new ReplicacheTransaction(
-      executor,
-      spaceID,
-      push.clientID,
-      nextVersion
-    );
+    const storage = new PostgresStorage(spaceID, nextVersion, executor);
+    const tx = new ReplicacheTransaction(storage, push.clientID);
 
     for (let i = 0; i < push.mutations.length; i++) {
       const mutation = push.mutations[i];
