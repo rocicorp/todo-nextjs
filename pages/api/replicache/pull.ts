@@ -1,6 +1,10 @@
-import type { NextApiRequest } from "next";
-import { transact } from "./pg";
-import { getChangedEntries, getCookie, getLastMutationID } from "./data";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { transact } from "../../../src/backend/pg";
+import {
+  getChangedEntries,
+  getCookie,
+  getLastMutationID,
+} from "../../../src/backend/data";
 import { z } from "zod";
 import type { PullResponse } from "replicache";
 
@@ -9,12 +13,16 @@ const pullRequest = z.object({
   cookie: z.union([z.number(), z.null()]),
 });
 
-export async function pull(
-  spaceID: string,
-  requestBody: NextApiRequest
-): Promise<PullResponse> {
+export default async function (req: NextApiRequest, res: NextApiResponse) {
+  const { body: requestBody } = req;
+
   console.log(`Processing pull`, JSON.stringify(requestBody, null, ""));
 
+  if (req.query["spaceID"] === undefined) {
+    res.status(400).send("Missing spaceID");
+    return;
+  }
+  const spaceID = req.query["spaceID"].toString() as string;
   const pull = pullRequest.parse(requestBody);
   const requestCookie = pull.cookie;
 
@@ -63,5 +71,6 @@ export async function pull(
   }
 
   console.log(`Returning`, JSON.stringify(resp, null, ""));
-  return resp;
+  res.json(resp);
+  res.end();
 }

@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { GetServerSideProps } from "next";
-import { createSpace } from "../src/backend";
+import { createSpace } from "../src/backend/space";
 
 function Page() {
   return "";

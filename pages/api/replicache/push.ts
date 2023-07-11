@@ -1,14 +1,16 @@
-import { transact } from "./pg";
+import { transact } from "../../../src/backend/pg";
 import {
   getCookie,
   getLastMutationID,
   setCookie,
   setLastMutationID,
-} from "./data";
+} from "../../../src/backend/data";
 import { ReplicacheTransaction } from "replicache-transaction";
 import { z, ZodType } from "zod";
-import type { MutatorDefs, ReadonlyJSONValue } from "replicache";
-import { PostgresStorage } from "./postgres-storage";
+import { ReadonlyJSONValue } from "replicache";
+import { PostgresStorage } from "../../../src/backend/postgres-storage";
+import { mutators } from "../../../src/mutators";
+import { NextApiRequest, NextApiResponse } from "next/types";
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -30,12 +32,14 @@ export function parseIfDebug<T>(schema: ZodType<T>, val: ReadonlyJSONValue): T {
 
 export type Error = "SpaceNotFound";
 
-export async function push<M extends MutatorDefs>(
-  spaceID: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  requestBody: any,
-  mutators: M
-) {
+export default async function (req: NextApiRequest, res: NextApiResponse) {
+  if (req.query["spaceID"] === undefined) {
+    res.status(400).send("Missing spaceID");
+    return;
+  }
+  const spaceID = req.query["spaceID"].toString() as string;
+  const { body: requestBody } = req;
+
   console.log("Processing push", JSON.stringify(requestBody, null, ""));
 
   const push = parseIfDebug(pushRequestSchema, requestBody);
@@ -103,4 +107,6 @@ export async function push<M extends MutatorDefs>(
   });
 
   console.log("Processed all mutations in", Date.now() - t0);
+
+  res.status(200).json({});
 }

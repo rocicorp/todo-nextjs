@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next";
 
-import { spaceExists } from "../../src/backend";
+import { spaceExists } from "../../src/backend/space";
 import { useReplicache } from "../../src/frontend";
 
 import App from "../../src/app";
