@@ -7,7 +7,6 @@ import {
 } from "./data";
 import { ReplicacheTransaction } from "replicache-transaction";
 import { z, ZodType } from "zod";
-import { getPokeBackend } from "./poke/poke";
 import type { MutatorDefs, ReadonlyJSONValue } from "replicache";
 import { PostgresStorage } from "./postgres-storage";
 
@@ -100,8 +99,7 @@ export async function push<M extends MutatorDefs>(
       tx.flush(),
     ]);
 
-    const pokeBackend = getPokeBackend();
-    await pokeBackend.poke(spaceID);
+    // No need to explicitly poke, Supabase realtime stuff will fire a change.
   });
 
   console.log("Processed all mutations in", Date.now() - t0);

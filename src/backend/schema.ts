@@ -1,5 +1,4 @@
 import type { Executor } from "./pg";
-import { getPokeBackend } from "./poke/poke";
 
 export async function createDatabase(executor: Executor) {
   console.log("creating database");
@@ -42,8 +41,9 @@ export async function createSchemaVersion1(executor: Executor) {
   await executor(`create index on entry (deleted)`);
   await executor(`create index on entry (version)`);
 
-  const pokeBackend = getPokeBackend();
-  await pokeBackend.initSchema(executor);
+  await executor(`alter publication supabase_realtime add table space`);
+  await executor(`alter publication supabase_realtime set
+      (publish = 'insert, update, delete');`);
 }
 
 async function getSchemaVersion(executor: Executor): Promise<number> {

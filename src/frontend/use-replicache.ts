@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MutatorDefs, Replicache, ReplicacheOptions } from "replicache";
-import { getPokeReceiver } from "./poke";
+import { listen } from "./poke";
 
 export interface UseReplicacheOptions<M extends MutatorDefs>
   extends Omit<ReplicacheOptions<M>, "licenseKey" | "name"> {
@@ -48,11 +48,11 @@ export function useReplicache<M extends MutatorDefs>({
     // - https://doc.replicache.dev/how-it-works#poke-optional
     // - https://github.com/supabase/realtime
     // - https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-    const cancelReceiver = getPokeReceiver()(name, async () => r.pull());
+    const unlisten = listen(name, async () => r.pull());
     setRep(r);
 
     return () => {
-      cancelReceiver();
+      unlisten();
       void r.close();
     };
   }, [name, ...Object.values(options)]);
