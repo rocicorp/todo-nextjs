@@ -1,12 +1,6 @@
 # replicache-todo
 
 A super fast offline-first implementation of [TodoMVC](https://todomvc.com/)
-built with Replicache, Next.js, and Postgres.
+built with Replicache, Next.js, and Supabase.
 
-The simplest possible starter sample for Replicache.
-
-Intended for customers to clone and start editing.
-
-## To get started
-
-Follow the instructions in the [Replicache Getting Started Guide](https://doc.replicache.dev/).
+This sample uses the global version strategy, supabase for storage, and supabase's built-in realtime support for pokes.
