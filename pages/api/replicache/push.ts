@@ -6,8 +6,7 @@ import {
   setLastMutationID,
 } from "../../../src/backend/data";
 import { ReplicacheTransaction } from "replicache-transaction";
-import { z, ZodType } from "zod";
-import { ReadonlyJSONValue } from "replicache";
+import { z } from "zod";
 import { PostgresStorage } from "../../../src/backend/postgres-storage";
 import { mutators } from "../../../src/mutators";
 import { NextApiRequest, NextApiResponse } from "next/types";
@@ -23,19 +22,12 @@ const pushRequestSchema = z.object({
   mutations: z.array(mutationSchema),
 });
 
-export function parseIfDebug<T>(schema: ZodType<T>, val: ReadonlyJSONValue): T {
-  if (globalThis.process?.env?.NODE_ENV !== "production") {
-    return schema.parse(val);
-  }
-  return val as T;
-}
-
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   const { body: requestBody } = req;
 
   console.log("Processing push", JSON.stringify(requestBody, null, ""));
 
-  const push = parseIfDebug(pushRequestSchema, requestBody);
+  const push = pushRequestSchema.parse(requestBody);
 
   const t0 = Date.now();
   await transact(async (executor) => {
