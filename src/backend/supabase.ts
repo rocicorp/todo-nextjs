@@ -22,15 +22,9 @@ export function getSupabaseServerConfig() {
 }
 
 function validate<T extends Record<string, string>>(vars: T) {
-  const enabled = Object.values(vars).some((v) => v);
-  if (!enabled) {
-    return undefined;
-  }
   for (const [k, v] of Object.entries(vars)) {
     if (!v) {
-      throw new Error(
-        `Invalid Supabase config: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_DATABASE_PASSWORD must be set (${k} was not)`
-      );
+      throw new Error(`Required env var '${k}' was not set`);
     }
   }
   return vars;

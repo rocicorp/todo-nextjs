@@ -1,10 +1,8 @@
 // Low-level config and utilities for Postgres.
 
-import type { Pool, QueryResult } from "pg";
+import { Pool, QueryResult } from "pg";
 import { createDatabase } from "./schema";
-import { getDBConfig } from "./pgconfig/pgconfig";
-
-const pool = getPool();
+import { getSupabaseServerConfig } from "./supabase";
 
 async function getPool() {
   const global = globalThis as unknown as {
@@ -20,8 +18,28 @@ async function getPool() {
 async function initPool() {
   console.log("creating global pool");
 
-  const dbConfig = getDBConfig();
-  const pool = dbConfig.initPool();
+  const config = getSupabaseServerConfig();
+  const ssl =
+    process.env.NODE_ENV === "production"
+      ? {
+          rejectUnauthorized: false,
+        }
+      : undefined;
+
+  // The Supabase URL env var is the URL to access the Supabase REST API,
+  // which looks like: https://pfdhjzsdkvlmuyvttfvt.supabase.co.
+  // We need to convert it into the Postgres connection string.
+  const { url, dbpass } = config;
+  const host = new URL(url).hostname;
+  const id = host.split(".")[0];
+  const connectionString = `postgresql://postgres:${encodeURIComponent(
+    dbpass
+  )}@db.${id}.supabase.co:5432/postgres`;
+
+  const pool = new Pool({
+    connectionString,
+    ssl,
+  });
 
   // the pool will emit an error on behalf of any idle clients
   // it contains if a backend error or network partition happens
@@ -38,7 +56,7 @@ async function initPool() {
 
   await withExecutorAndPool(async (executor) => {
     await transactWithExecutor(executor, async (executor) => {
-      await createDatabase(executor, dbConfig);
+      await createDatabase(executor);
     });
   }, pool);
 
@@ -46,7 +64,7 @@ async function initPool() {
 }
 
 export async function withExecutor<R>(f: (executor: Executor) => R) {
-  const p = await pool;
+  const p = await getPool();
   return withExecutorAndPool(f, p);
 }
 

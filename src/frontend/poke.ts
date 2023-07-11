@@ -4,8 +4,6 @@ import {
 } from "../backend/supabase";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseClientConfig = getSupabaseClientConfig();
-
 export type Receiver = (spaceID: string, onPoke: OnPoke) => Cancel;
 export type OnPoke = () => Promise<void>;
 export type Cancel = () => void;
@@ -13,6 +11,7 @@ export type Cancel = () => void;
 // Returns a function that can be used to listen for pokes from the backend.
 // This sample supports two different ways to do it.
 export function getPokeReceiver(): Receiver {
+  const supabaseClientConfig = getSupabaseClientConfig();
   if (supabaseClientConfig) {
     return supabaseReceiver.bind(null, supabaseClientConfig);
   } else {
