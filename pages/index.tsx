@@ -1,4 +1,4 @@
-import { useReplicache } from "../src/frontend";
+import { useReplicache } from "../src/frontend/use-replicache";
 
 import App from "../src/app";
 import { mutators } from "../src/mutators";
