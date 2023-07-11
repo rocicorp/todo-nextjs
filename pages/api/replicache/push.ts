@@ -30,14 +30,7 @@ export function parseIfDebug<T>(schema: ZodType<T>, val: ReadonlyJSONValue): T {
   return val as T;
 }
 
-export type Error = "SpaceNotFound";
-
 export default async function (req: NextApiRequest, res: NextApiResponse) {
-  if (req.query["spaceID"] === undefined) {
-    res.status(400).send("Missing spaceID");
-    return;
-  }
-  const spaceID = req.query["spaceID"].toString() as string;
   const { body: requestBody } = req;
 
   console.log("Processing push", JSON.stringify(requestBody, null, ""));
@@ -46,10 +39,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
   const t0 = Date.now();
   await transact(async (executor) => {
-    const prevVersion = await getCookie(executor, spaceID);
-    if (prevVersion === undefined) {
-      throw new Error(`Unknown space ${spaceID}`);
-    }
+    const prevVersion = await getCookie(executor);
 
     const nextVersion = prevVersion + 1;
     let lastMutationID =
@@ -58,7 +48,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     console.log("prevVersion: ", prevVersion);
     console.log("lastMutationID:", lastMutationID);
 
-    const storage = new PostgresStorage(spaceID, nextVersion, executor);
+    const storage = new PostgresStorage(nextVersion, executor);
     const tx = new ReplicacheTransaction(storage, push.clientID);
 
     for (let i = 0; i < push.mutations.length; i++) {
@@ -99,7 +89,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
     await Promise.all([
       setLastMutationID(executor, push.clientID, lastMutationID),
-      setCookie(executor, spaceID, nextVersion),
+      setCookie(executor, nextVersion),
       tx.flush(),
     ]);
 

@@ -14,12 +14,7 @@ export async function createDatabase(executor: Executor) {
 export async function createSchemaVersion1(executor: Executor) {
   await executor("create table meta (key text primary key, value json)");
   await executor("insert into meta (key, value) values ('schemaVersion', '1')");
-
-  await executor(`create table space (
-        id text primary key not null,
-        version integer not null,
-        lastmodified timestamp(6) not null
-        )`);
+  await executor("insert into meta (key, value) values ('globalVersion', '0')");
 
   await executor(`create table client (
           id text primary key not null,
@@ -28,7 +23,6 @@ export async function createSchemaVersion1(executor: Executor) {
           )`);
 
   await executor(`create table entry (
-        spaceid text not null,
         key text not null,
         value text not null,
         deleted boolean not null,
@@ -36,12 +30,11 @@ export async function createSchemaVersion1(executor: Executor) {
         lastmodified timestamp(6) not null
         )`);
 
-  await executor(`create unique index on entry (spaceid, key)`);
-  await executor(`create index on entry (spaceid)`);
+  await executor(`create unique index on entry (key)`);
   await executor(`create index on entry (deleted)`);
   await executor(`create index on entry (version)`);
 
-  await executor(`alter publication supabase_realtime add table space`);
+  await executor(`alter publication supabase_realtime add table meta`);
   await executor(`alter publication supabase_realtime set
       (publish = 'insert, update, delete');`);
 }

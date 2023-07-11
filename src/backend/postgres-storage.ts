@@ -6,18 +6,16 @@ import type { Executor } from "./pg";
 // Implements the Storage interface required by replicache-transaction in terms
 // of our Postgres database.
 export class PostgresStorage implements Storage {
-  private _spaceID: string;
   private _version: number;
   private _executor: Executor;
 
-  constructor(spaceID: string, version: number, executor: Executor) {
-    this._spaceID = spaceID;
+  constructor(version: number, executor: Executor) {
     this._version = version;
     this._executor = executor;
   }
 
   putEntry(key: string, value: JSONValue): Promise<void> {
-    return putEntry(this._executor, this._spaceID, key, value, this._version);
+    return putEntry(this._executor, key, value, this._version);
   }
 
   async hasEntry(key: string): Promise<boolean> {
@@ -26,14 +24,14 @@ export class PostgresStorage implements Storage {
   }
 
   getEntry(key: string): Promise<JSONValue | undefined> {
-    return getEntry(this._executor, this._spaceID, key);
+    return getEntry(this._executor, key);
   }
 
   getEntries(fromKey: string): AsyncIterable<readonly [string, JSONValue]> {
-    return getEntries(this._executor, this._spaceID, fromKey);
+    return getEntries(this._executor, fromKey);
   }
 
   delEntry(key: string): Promise<void> {
-    return delEntry(this._executor, this._spaceID, key, this._version);
+    return delEntry(this._executor, key, this._version);
   }
 }

@@ -15,26 +15,19 @@ export interface UseReplicacheOptions<M extends MutatorDefs>
  * Thus it is fine to say `useReplicache({name, mutators})`, as long as name
  * and mutators are stable.
  */
-export function useReplicache<M extends MutatorDefs>({
-  name,
-  ...options
-}: UseReplicacheOptions<M>) {
+export function useReplicache<M extends MutatorDefs>(
+  options: UseReplicacheOptions<M>
+) {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
 
   useEffect(() => {
-    if (!name) {
-      setRep(null);
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return () => {};
-    }
-
     const r = new Replicache({
       // See https://doc.replicache.dev/licensing for how to get a license key.
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       licenseKey: process.env.NEXT_PUBLIC_REPLICACHE_LICENSE_KEY!,
-      pushURL: `/api/replicache/push?spaceID=${name}`,
-      pullURL: `/api/replicache/pull?spaceID=${name}`,
-      name,
+      pushURL: `/api/replicache/push`,
+      pullURL: `/api/replicache/pull`,
+      name: "anon",
       ...options,
     });
 
@@ -48,14 +41,14 @@ export function useReplicache<M extends MutatorDefs>({
     // - https://doc.replicache.dev/how-it-works#poke-optional
     // - https://github.com/supabase/realtime
     // - https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-    const unlisten = listen(name, async () => r.pull());
+    const unlisten = listen(async () => r.pull());
     setRep(r);
 
     return () => {
       unlisten();
       void r.close();
     };
-  }, [name, ...Object.values(options)]);
+  }, [...Object.values(options)]);
 
   if (!rep) {
     return null;

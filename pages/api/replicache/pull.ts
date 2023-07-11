@@ -18,15 +18,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
   console.log(`Processing pull`, JSON.stringify(requestBody, null, ""));
 
-  if (req.query["spaceID"] === undefined) {
-    res.status(400).send("Missing spaceID");
-    return;
-  }
-  const spaceID = req.query["spaceID"].toString() as string;
   const pull = pullRequest.parse(requestBody);
   const requestCookie = pull.cookie;
 
-  console.log("spaceID", spaceID);
   console.log("clientID", pull.clientID);
 
   const t0 = Date.now();
@@ -34,9 +28,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   const [entries, lastMutationID, responseCookie] = await transact(
     async (executor) => {
       return Promise.all([
-        getChangedEntries(executor, spaceID, requestCookie ?? 0),
+        getChangedEntries(executor, requestCookie ?? 0),
         getLastMutationID(executor, pull.clientID),
-        getCookie(executor, spaceID),
+        getCookie(executor),
       ]);
     }
   );
@@ -44,10 +38,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   console.log("lastMutationID: ", lastMutationID);
   console.log("responseCookie: ", responseCookie);
   console.log("Read all objects in", Date.now() - t0);
-
-  if (responseCookie === undefined) {
-    throw new Error(`Unknown space ${spaceID}`);
-  }
 
   const resp: PullResponse = {
     lastMutationID: lastMutationID ?? 0,
