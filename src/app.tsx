@@ -31,13 +31,13 @@ const App = ({ rep }: { rep: Replicache<M> }) => {
 
   const handleDeleteTodos = (ids: string[]) => {
     for (const id of ids) {
-      rep.mutate.deleteTodo(id);
+      void rep.mutate.deleteTodo(id);
     }
   };
 
   const handleCompleteTodos = (completed: boolean, ids: string[]) => {
     for (const id of ids) {
-      rep.mutate.updateTodo({
+      void rep.mutate.updateTodo({
         id,
         completed,
       });

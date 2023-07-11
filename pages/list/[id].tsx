@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next";
 
-import { spaceExists } from "replicache-nextjs/lib/backend";
-import { useReplicache } from "replicache-nextjs/lib/frontend";
+import { spaceExists } from "../../src/backend";
+import { useReplicache } from "../../src/frontend";
 
 import App from "../../src/app";
 import { mutators } from "../../src/mutators";

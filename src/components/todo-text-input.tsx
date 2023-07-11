@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  FocusEvent,
-  KeyboardEvent,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
 import classnames from "classnames";
 
 export default function TodoTextInput({
@@ -32,7 +26,7 @@ export default function TodoTextInput({
     setTextInput(e.target.value);
   };
 
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const handleBlur = () => {
     if (onBlur) {
       onBlur(textInput);
     }
@@ -43,7 +37,8 @@ export default function TodoTextInput({
       ref={ref}
       className={classnames({
         edit: initial !== "",
-        "new-todo": initial == "",
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        "new-todo": initial === "",
       })}
       type="text"
       placeholder={placeholder}

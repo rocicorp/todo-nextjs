@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { handleRequest } from "replicache-nextjs/lib/backend";
+import { handleRequest } from "../../../src/backend";
 import { mutators } from "../../../src/mutators";
 
 // Next.js runs this function server-side when /api/replicache/[anything].ts is
