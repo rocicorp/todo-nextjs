@@ -19,12 +19,6 @@ async function initPool() {
   console.log("creating global pool");
 
   const config = getSupabaseServerConfig();
-  const ssl =
-    process.env.NODE_ENV === "production"
-      ? {
-          rejectUnauthorized: false,
-        }
-      : undefined;
 
   // The Supabase URL env var is the URL to access the Supabase REST API,
   // which looks like: https://pfdhjzsdkvlmuyvttfvt.supabase.co.
@@ -38,18 +32,11 @@ async function initPool() {
 
   const pool = new Pool({
     connectionString,
-    ssl,
   });
 
-  // the pool will emit an error on behalf of any idle clients
-  // it contains if a backend error or network partition happens
-  pool.on("error", (err) => {
-    console.error("Unexpected error on idle client", err);
-    process.exit(-1);
-  });
+  // Replicache requires serializable transactions.
   pool.on("connect", async (client) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    client.query(
+    void client.query(
       "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE"
     );
   });
@@ -112,34 +99,14 @@ async function transactWithExecutor<R>(
   executor: Executor,
   body: TransactionBodyFn<R>
 ) {
-  for (let i = 0; i < 10; i++) {
-    try {
-      await executor("begin");
-      try {
-        const r = await body(executor);
-        await executor("commit");
-        return r;
-      } catch (e) {
-        console.log("caught error", e, "rolling back");
-        await executor("rollback");
-        throw e;
-      }
-    } catch (e) {
-      if (shouldRetryTransaction(e)) {
-        console.log(
-          `Retrying transaction due to error ${e} - attempt number ${i}`
-        );
-        continue;
-      }
-      throw e;
-    }
+  await executor("begin");
+  try {
+    const r = await body(executor);
+    await executor("commit");
+    return r;
+  } catch (e) {
+    console.log("caught error", e, "rolling back");
+    await executor("rollback");
+    throw e;
   }
-  throw new Error("Tried to execute transacation too many times. Giving up.");
-}
-
-//stackoverflow.com/questions/60339223/node-js-transaction-coflicts-in-postgresql-optimistic-concurrency-control-and
-function shouldRetryTransaction(err: unknown) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const code = typeof err === "object" ? String((err as any).code) : null;
-  return code === "40001" || code === "40P01";
 }
