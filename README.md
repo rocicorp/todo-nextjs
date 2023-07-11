@@ -1,8 +1,8 @@
-# replicache-todo
+# todo-nextjs
 
 An implementation of [TodoMVC](https://todomvc.com/) built with Replicache, Next.js, and Supabase.
 
-This app uses the global version strategy, shared mutators, supabase for storage, and supabase's built-in realtime support for pokes.
+This sample uses the global version strategy, shared mutators, supabase for storage, and supabase's built-in realtime support for pokes.
 
 # Develop
 
