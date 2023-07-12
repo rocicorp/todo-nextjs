@@ -39,6 +39,9 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   console.log("responseCookie: ", responseCookie);
   console.log("Read all objects in", Date.now() - t0);
 
+  // TODO: Return ClientStateNotFound for Replicache 13 to handle case where
+  // server state deleted.
+
   const resp: PullResponse = {
     lastMutationID: lastMutationID ?? 0,
     cookie: responseCookie,

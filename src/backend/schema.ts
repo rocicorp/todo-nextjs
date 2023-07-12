@@ -1,13 +1,15 @@
 import { Executor } from "./pg";
 
 export async function createDatabase(t: Executor) {
-  console.log("creating database");
   const schemaVersion = await getSchemaVersion(t);
   if (schemaVersion < 0 || schemaVersion > 1) {
     throw new Error("Unexpected schema version: " + schemaVersion);
   }
   if (schemaVersion === 0) {
+    console.log("creating database");
     await createSchemaVersion1(t);
+  } else {
+    console.log("database is up to date");
   }
 }
 
