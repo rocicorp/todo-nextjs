@@ -1,10 +1,14 @@
 # todo-nextjs
 
-An implementation of [TodoMVC](https://todomvc.com/) built with Replicache, Next.js, and Supabase.
+A Replicache sample using Next.js/serverless/Supabase.
 
-This sample uses the global version strategy, shared mutators, supabase for storage, and supabase's built-in realtime support for pokes.
+Also demonstrates:
 
-# Develop
+- Global Version Strategy
+- [Shared Mutators](https://doc.replicache.dev/howto/share-mutators)
+- [Poke](https://doc.replicache.dev/byob/poke) via Supabase realtime notifications
+
+# Setup
 
 <ol>
  <li>Create a new project at supabase.com. <b>Take note of the database password when you setup.</b></li>
