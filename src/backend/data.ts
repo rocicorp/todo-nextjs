@@ -6,15 +6,14 @@ export async function getEntry(
   executor: Executor,
   key: string
 ): Promise<JSONValue | undefined> {
-  const { rows } = await executor(
+  const row = await executor.one(
     "select value from entry where key = $1 and deleted = false",
     [key]
   );
-  const value = rows[0]?.value;
-  if (value === undefined) {
+  if (!row) {
     return undefined;
   }
-  return JSON.parse(value);
+  return JSON.parse(row.value);
 }
 
 export async function putEntry(
@@ -23,7 +22,7 @@ export async function putEntry(
   value: JSONValue,
   version: number
 ): Promise<void> {
-  await executor(
+  await executor.none(
     `
     insert into entry (key, value, deleted, version, lastmodified)
     values ($1, $2, false, $3, now())
@@ -39,7 +38,7 @@ export async function delEntry(
   key: string,
   version: number
 ): Promise<void> {
-  await executor(
+  await executor.none(
     `update entry set deleted = true, version = $2 where key = $1`,
     [key, version]
   );
@@ -49,7 +48,7 @@ export async function* getEntries(
   executor: Executor,
   fromKey: string
 ): AsyncIterable<readonly [string, JSONValue]> {
-  const { rows } = await executor(
+  const rows = await executor.manyOrNone(
     `select key, value from entry where key >= $1 and deleted = false order by key`,
     [fromKey]
   );
@@ -62,7 +61,7 @@ export async function getChangedEntries(
   executor: Executor,
   prevVersion: number
 ): Promise<[key: string, value: JSONValue, deleted: boolean][]> {
-  const { rows } = await executor(
+  const rows = await executor.manyOrNone(
     `select key, value, deleted from entry where version > $1`,
     [prevVersion]
   );
@@ -70,10 +69,10 @@ export async function getChangedEntries(
 }
 
 export async function getCookie(executor: Executor): Promise<number> {
-  const { rows } = await executor(
+  const row = await executor.one(
     `select value from meta where key = 'globalVersion'`
   );
-  const value = rows[0]?.value;
+  const { value } = row;
   return z.number().parse(value);
 }
 
@@ -81,20 +80,21 @@ export async function setCookie(
   executor: Executor,
   version: number
 ): Promise<void> {
-  await executor(`update meta set value = $1 where key = 'globalVersion'`, [
-    version,
-  ]);
+  await executor.none(
+    `update meta set value = '$1' where key = 'globalVersion'`,
+    [version]
+  );
 }
 
 export async function getLastMutationID(
   executor: Executor,
   clientID: string
 ): Promise<number | undefined> {
-  const { rows } = await executor(
+  const row = await executor.oneOrNone(
     `select lastmutationid from client where id = $1`,
     [clientID]
   );
-  const value = rows[0]?.lastmutationid;
+  const value = row?.lastmutationid;
   if (value === undefined) {
     return undefined;
   }
@@ -106,7 +106,7 @@ export async function setLastMutationID(
   clientID: string,
   lastMutationID: number
 ): Promise<void> {
-  await executor(
+  await executor.none(
     `
     insert into client (id, lastmutationid, lastmodified)
     values ($1, $2, now())

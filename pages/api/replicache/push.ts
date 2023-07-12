@@ -1,4 +1,4 @@
-import { transact } from "../../../src/backend/pg";
+import { tx } from "../../../src/backend/pg";
 import {
   getCookie,
   getLastMutationID,
@@ -30,7 +30,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   const push = pushRequestSchema.parse(requestBody);
 
   const t0 = Date.now();
-  await transact(async (executor) => {
+  await tx(async (executor) => {
     const prevVersion = await getCookie(executor);
 
     const nextVersion = prevVersion + 1;

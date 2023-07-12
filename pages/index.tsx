@@ -1,9 +1,9 @@
-import App from "../src/app";
+import App from "../src/frontend/app";
 import { M, mutators } from "../src/mutators";
 import { useEffect, useState } from "react";
 import { Replicache } from "replicache";
-import { getSupabaseClientConfig } from "../src/backend/supabase";
 import { createClient } from "@supabase/supabase-js";
+import { getAPIKey, getProjectURL } from "../src/supabase";
 
 export default function Home() {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
@@ -42,8 +42,8 @@ export default function Home() {
 // Implements a Replicache poke using Supabase's realtime functionality.
 // See: backend/poke/supabase.ts.
 function listen(onPoke: () => Promise<void>) {
-  const supabaseClientConfig = getSupabaseClientConfig();
-  const { url, key } = supabaseClientConfig;
+  const url = getProjectURL();
+  const key = getAPIKey();
   const supabase = createClient(url, key);
   const subscriptionChannel = supabase.channel("public:meta");
   subscriptionChannel

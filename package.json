@@ -8,75 +8,27 @@
     "start": "next start",
     "format": "prettier --write './**/*.{js,jsx,json,ts,tsx,html,css,md}'"
   },
-  "engines": {
-    "//": "npm 7 not strictly *required* but without, you need to manually install the peerDependencies below",
-    "npm": ">=7.0.0"
-  },
   "dependencies": {
-    "classnames": "^2.3.1",
-    "next": ">=12.1.6",
-    "react": ">=16.0 <19.0",
-    "react-dom": ">=16.0 <19.0",
-    "replicache": ">=12.0.1",
-    "replicache-react": "^2.10.0",
-    "todomvc-app-css": "^2.4.2"
-  },
-  "peerDependencies": {
     "@supabase/supabase-js": ">=2.0.0",
-    "next": ">=12.1.6",
-    "pg": ">=8.6.0",
-    "pg-mem": ">=2.5.0",
-    "react": ">=16.0 <19.0",
-    "react-dom": ">=16.0 <19.0",
-    "replicache": ">=12.0.1",
-    "replicache-transaction": ">=0.2.1",
-    "zod": ">=3.17.3"
-  },
-  "devDependencies": {
     "@types/node": "^14.14.37",
     "@types/pg": "^8.6.4",
-    "@types/react": "^17.0.11",
     "@types/react-dom": "^18.0.5",
+    "@types/react": "^17.0.11",
     "@typescript-eslint/eslint-plugin": "^5.3.1",
     "@typescript-eslint/parser": "^5.18.0",
+    "classnames": "^2.3.1",
     "eslint": "^8.2.0",
     "nanoid": "^4.0.2",
+    "next": ">=12.1.6",
+    "pg-promise": "^11.5.0",
     "prettier": "^2.2.1",
-    "typescript": "^4.9.3"
-  },
-  "eslintConfig": {
-    "ecmaFeatures": {
-      "jsx": true,
-      "modules": true
-    },
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "parser": "babel-eslint",
-    "rules": {
-      "quotes": [
-        2,
-        "single"
-      ],
-      "strict": [
-        2,
-        "never"
-      ],
-      "react/jsx-uses-react": 2,
-      "react/jsx-uses-vars": 2,
-      "react/react-in-jsx-scope": 2
-    },
-    "plugins": [
-      "react"
-    ]
-  },
-  "prettier": {
-    "singleQuote": false,
-    "trailingComma": "es5",
-    "arrowParens": "always",
-    "bracketSpacing": true,
-    "tabWidth": 2,
-    "useTabs": false
+    "react-dom": ">=16.0 <19.0",
+    "react": ">=16.0 <19.0",
+    "replicache-react": "^2.10.0",
+    "replicache-transaction": ">=0.2.1",
+    "replicache": ">=12.0.1",
+    "todomvc-app-css": "^2.4.2",
+    "typescript": "^4.9.3",
+    "zod": ">=3.17.3"
   }
 }

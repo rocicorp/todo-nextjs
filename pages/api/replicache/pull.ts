@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { transact } from "../../../src/backend/pg";
+import { tx } from "../../../src/backend/pg";
 import {
   getChangedEntries,
   getCookie,
@@ -25,7 +25,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
   const t0 = Date.now();
 
-  const [entries, lastMutationID, responseCookie] = await transact(
+  const [entries, lastMutationID, responseCookie] = await tx(
     async (executor) => {
       return Promise.all([
         getChangedEntries(executor, requestCookie ?? 0),

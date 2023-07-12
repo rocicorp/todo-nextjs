@@ -3,11 +3,11 @@ import React from "react";
 import { Replicache } from "replicache";
 import { useSubscribe } from "replicache-react";
 
-import { M } from "./mutators";
-import { listTodos, TodoUpdate } from "./todo";
+import { M } from "../mutators";
+import { listTodos, TodoUpdate } from "../todo";
 
-import Header from "./components/header";
-import MainSection from "./components/main-section";
+import Header from "./header";
+import MainSection from "./main-section";
 import "todomvc-app-css/index.css";
 
 // This is the top-level component for our app.
