@@ -2,60 +2,86 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { tx } from "../../../src/backend/pg";
 import {
   getChangedEntries,
-  getCookie,
-  getLastMutationID,
+  getChangedLastMutationIDs,
+  getClientGroup,
+  getGlobalVersion,
 } from "../../../src/backend/data";
 import { z } from "zod";
 import type { PullResponse } from "replicache";
 
-const pullRequest = z.object({
-  clientID: z.string(),
+const pullRequestSchema = z.object({
+  clientGroupID: z.string(),
   cookie: z.union([z.number(), z.null()]),
 });
 
+type PullRequest = z.infer<typeof pullRequestSchema>;
+
+const authError = {};
+
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   const { body: requestBody } = req;
+  const userID = req.cookies["userID"] ?? "anon";
 
   console.log(`Processing pull`, JSON.stringify(requestBody, null, ""));
+  const pullRequest = pullRequestSchema.parse(requestBody);
 
-  const pull = pullRequest.parse(requestBody);
-  const requestCookie = pull.cookie;
+  let pullResponse: PullResponse;
+  try {
+    pullResponse = await processPull(pullRequest, userID);
+  } catch (e) {
+    if (e === authError) {
+      res.status(401).send("Unauthorized");
+    } else {
+      console.error("Error processing pull:", e);
+      res.status(500).send("Internal Server Error");
+    }
+    return;
+  }
 
-  console.log("clientID", pull.clientID);
+  res.status(200).json(pullResponse);
+}
+
+async function processPull(req: PullRequest, userID: string) {
+  const { clientGroupID, cookie: requestCookie } = req;
 
   const t0 = Date.now();
 
-  const [entries, lastMutationID, responseCookie] = await tx(
+  const [entries, lastMutationIDChanges, responseCookie] = await tx(
     async (executor) => {
+      const clientGroup = await getClientGroup(executor, req.clientGroupID);
+      if (clientGroup && clientGroup.userID !== userID) {
+        throw authError;
+      }
+
       return Promise.all([
         getChangedEntries(executor, requestCookie ?? 0),
-        getLastMutationID(executor, pull.clientID),
-        getCookie(executor),
+        getChangedLastMutationIDs(executor, clientGroupID, requestCookie ?? 0),
+        getGlobalVersion(executor),
       ]);
     }
   );
 
-  console.log("lastMutationID: ", lastMutationID);
+  console.log("lastMutationIDChanges: ", lastMutationIDChanges);
   console.log("responseCookie: ", responseCookie);
   console.log("Read all objects in", Date.now() - t0);
 
   // TODO: Return ClientStateNotFound for Replicache 13 to handle case where
   // server state deleted.
 
-  const resp: PullResponse = {
-    lastMutationID: lastMutationID ?? 0,
+  const res: PullResponse = {
+    lastMutationIDChanges,
     cookie: responseCookie,
     patch: [],
   };
 
   for (const [key, value, deleted] of entries) {
     if (deleted) {
-      resp.patch.push({
+      res.patch.push({
         op: "del",
         key,
       });
     } else {
-      resp.patch.push({
+      res.patch.push({
         op: "put",
         key,
         value,
@@ -63,7 +89,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
-  console.log(`Returning`, JSON.stringify(resp, null, ""));
-  res.json(resp);
-  res.end();
+  console.log(`Returning`, JSON.stringify(res, null, ""));
+  return res;
 }
