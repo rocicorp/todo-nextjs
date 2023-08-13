@@ -4,11 +4,19 @@ import { useEffect, useState } from "react";
 import { Replicache } from "replicache";
 import { createClient } from "@supabase/supabase-js";
 import { getAPIKey, getProjectURL } from "../src/supabase";
+import Cookies from "js-cookie";
+import { nanoid } from "nanoid";
 
 export default function Home() {
   const [rep, setRep] = useState<Replicache<M> | null>(null);
 
   useEffect(() => {
+    let userID = Cookies.get("userID");
+    if (!userID) {
+      userID = nanoid();
+      Cookies.set("userID", userID);
+    }
+
     const r = new Replicache({
       // See https://doc.replicache.dev/licensing for how to get a license key.
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -45,15 +53,14 @@ function listen(onPoke: () => Promise<void>) {
   const url = getProjectURL();
   const key = getAPIKey();
   const supabase = createClient(url, key);
-  const subscriptionChannel = supabase.channel("public:meta");
+  const subscriptionChannel = supabase.channel("public:replicache_space");
   subscriptionChannel
     .on(
       "postgres_changes",
       {
         event: "*",
         schema: "public",
-        table: "meta",
-        filter: "key=eq.globalVersion",
+        table: "replicache_space",
       },
       () => {
         void onPoke();
