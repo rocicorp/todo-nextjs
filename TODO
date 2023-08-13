@@ -1,0 +1,12 @@
+x Port to R13
+  x get running again
+  x update all the code so it builds
+  x test push
+  x test pull
+  x fix poke
+x add info to the README about the choices this sample makes and how to run it
+x implement userIDs via localStorage
+x test error paths with postman
+- figure out absolute paths in next to pretty up imports
+- put an FAQ or link or something on the docs about "mutation from future" and link to it in all the error messages
+- put an FAQ or link or something on the website about error handling and link to it
