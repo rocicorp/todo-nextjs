@@ -1,7 +1,5 @@
 # todo-nextjs
 
-(touch README)
-
 A Replicache sample using Next.js/serverless/Supabase.
 
 Also demonstrates:
