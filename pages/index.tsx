@@ -23,7 +23,7 @@ export default function Home() {
       licenseKey: process.env.NEXT_PUBLIC_REPLICACHE_LICENSE_KEY!,
       pushURL: `/api/replicache/push`,
       pullURL: `/api/replicache/pull`,
-      name: "anon",
+      name: userID,
       mutators,
     });
 
