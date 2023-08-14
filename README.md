@@ -8,6 +8,8 @@ Also demonstrates:
 - [Shared Mutators](https://doc.replicache.dev/howto/share-mutators)
 - [Poke](https://doc.replicache.dev/byob/poke) via Supabase realtime notifications
 
+Running live at https://replicache-todo-nextjs.vercel.app/
+
 # Setup
 
 <ol>
