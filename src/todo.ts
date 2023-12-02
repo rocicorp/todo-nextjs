@@ -14,5 +14,5 @@ export type Todo = {
 export type TodoUpdate = Partial<Todo> & Pick<Todo, "id">;
 
 export async function listTodos(tx: ReadTransaction) {
-  return (await tx.scan().values().toArray()) as Todo[];
+  return await tx.scan<Todo>().values().toArray();
 }

@@ -13,7 +13,7 @@ import "todomvc-app-css/index.css";
 // This is the top-level component for our app.
 const App = ({ rep }: { rep: Replicache<M> }) => {
   // Subscribe to all todos and sort them.
-  const todos = useSubscribe(rep, listTodos, [], [rep]);
+  const todos = useSubscribe(rep, listTodos, { default: [] });
   todos.sort((a, b) => a.sort - b.sort);
 
   // Define event handlers and connect them to Replicache mutators. Each
