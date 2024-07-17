@@ -13,20 +13,7 @@ export function getAPIKey() {
 }
 
 export function getConnectionString() {
-  const url = getProjectURL();
-  const pass = getDBPass();
-  const host = new URL(url).hostname;
-  const id = host.split(".")[0];
-  return `postgresql://postgres:${encodeURIComponent(
-    pass
-  )}@db.${id}.supabase.co:5432/postgres`;
-}
-
-function getDBPass() {
-  return getEnvVar(
-    process.env.SUPABASE_DATABASE_PASSWORD,
-    "SUPABASE_DATABASE_PASSWORD"
-  );
+  return getEnvVar(process.env.SUPABASE_DATABASE_URL, "SUPABASE_DATABASE_URL");
 }
 
 function getEnvVar(v: string | undefined, n: string) {
